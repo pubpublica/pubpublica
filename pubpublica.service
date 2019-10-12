@@ -3,7 +3,7 @@ Description=uWSGI instance to serve pubpublica
 After=network.target
 
 [Service]
-User=jens
+User=pubpublica
 Group=www-data
 WorkingDirectory=/home/jens/pubpublica
 Environment="PATH=/home/jens/pubpublica/pubpublicaenv/bin"
