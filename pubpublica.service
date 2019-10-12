@@ -1,0 +1,13 @@
+[Unit]
+Description=uWSGI instance to serve pubpublica
+After=network.target
+
+[Service]
+User=jens
+Group=www-data
+WorkingDirectory=/home/jens/pubpublica
+Environment="PATH=/home/jens/pubpublica/pubpublicaenv/bin"
+ExecStart=/home/jens/pubpublica/venv/bin/uwsgi --ini pubpublica.ini
+
+[Install]
+WantedBy=multi-user.target

@@ -1,5 +1,5 @@
 serve:
-	uwsgi --ini wsgi.ini
+	uwsgi --ini pubpublica.ini
 
 debug:
 	python wsgi.py
