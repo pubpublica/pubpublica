@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+  <channel>
+    <title>pub publica</title>
+    <link>https://www.pubpublica.org/</link>
+    <description>public publications</description>
+    {% for pub in ctx.publications %}
+    <item>
+      <title>{{ pub.title }}</title>
+      <link>{{ pub.sitelink }}</link>
+      <description>{{ pub.description }}</description>
+      <guid>{{ pub.sitelink }}</guid>
+      <pubDate>{{ pub.date }}</pubDate>
+    </item>
+    {% endfor %}
+  </channel>
+</rss>

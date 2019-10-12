@@ -1,0 +1,123 @@
+html {
+    font-family: sans-serif;
+}
+
+body {
+    max-width: 1200px;
+    margin: auto;
+    padding: 10px;
+}
+
+a {
+    text-decoration: none;
+}
+
+hr {
+    width: 100%;
+    border: 0;
+    border-top: 1px dashed #8c8c8c;
+}
+
+header {
+    height: 80px;
+}
+
+header img {
+    float: left;
+    width: 70px;
+    height: 70px;
+    padding: 5px;
+}
+
+header h1 {
+    position: relative;
+    top: 13px;
+    left: 5px;
+    font-size: 1.5em;
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.column {
+    display: block;
+    width: 100%;
+}
+
+@media only screen and (min-width: 800px){
+    .column {
+        width: 45%;
+    }
+}
+
+@media only screen and (min-width: 1050px){
+    .column {
+        width: 33%;
+    }
+}
+
+.pub {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px;
+    margin: 10px 5px;
+    background: #fcfcfc;
+    border: 1px solid rgba(31,31,31,0.1);
+    border-radius: 2px;
+}
+
+.pub .top {
+    width: 100%;
+    font-size: .8em;
+}
+
+.pub .date {
+    float: left;
+    color: #555555
+}
+
+.pub .title {
+    width: 100%;
+    font-size: 1.2em;
+    margin-block-start: 0;
+    margin-block-end: 0;
+}
+
+.pub .link {
+    float: right;
+    margin: 0 5px;
+}
+
+.pub .authors {
+    width: 100%;
+}
+
+.pub .author {
+    display: inline;
+    padding: 2px;
+    border: 1px solid #dadada;
+    border-radius: 2px;
+    font-size: .9em;
+}
+
+.pub p {
+    display: flex;
+    width: 100%;
+}
+
+
+.pub .tags {
+    width: 100%;
+}
+
+.pub .tag {
+    display: inline;
+    padding: 2px;
+    background-color: rgba(27,31,35,.05);
+    border: 1px solid #dadada;
+    border-radius: 2px;
+    font-size: .9em;
+}

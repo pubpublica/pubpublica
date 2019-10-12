@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name = "viewport" content = "width=device-width, initial-scale = 1">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='res/logo.png') }}">
+    <title>pub publica</title>
+    <link rel="alternate" type="application/rss+xml" title="rss feed" href="/rss" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/sanitize.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+  </head>
+  <body>
+    <header><img src="static/res/logo.png" alt="logo" /><h1>pub publica</h1></header>
+
+    {% block content %} {% endblock %}
+
+  </body>
+</html>

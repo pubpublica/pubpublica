@@ -1,0 +1,37 @@
+<div class="column">
+  <h1>climate</h1>
+  {% for pub in ctx.publications %}
+  <div class="pub">
+    <div class="top">
+      <i class="date">{{pub.date}}</i>
+      {% if pub.directlink %}
+      <a target="_blank" title="direct link" class="link" href="{{pub.directlink}}">D</a>
+      {% endif %}
+      {% if pub.summarylink %}
+      <a target="_blank" title="link to summary" class="link" href="{{pub.summarylink}}">S</a>
+      {% endif %}
+      {% if pub.sitelink %}
+      <a target="_blank" title="link to site" class="link" href="{{pub.sitelink}}">W</a>
+      {% endif %}
+    </div>
+
+    <h2 class="title">{{pub.title}}</h2>
+
+    <div class="authors">
+      {% for author in pub.authors %}
+      <pre class="author">{{author}}</pre>
+      {% endfor %}
+    </div>
+
+    <p>{{pub.description}}</p>
+
+    <!-- <hr/> -->
+
+    <div class="tags">
+      {% for tag in pub.tags %}
+      <pre class="tag">{{tag}}</pre>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
