@@ -3,14 +3,13 @@ import json
 import datetime
 
 
-def get_redis_secrets():
-    file = ".redis_secrets"
-
-    if not os.path.exists(file):
+def load_secrets(file):
+    try:
+        with open(file, "r") as f:
+            return json.load(f)
+    except Exception as err:
+        print(err)
         return {}
-
-    with open(file, "r") as f:
-        return json.load(f)
 
 
 def get_publication_files(path):

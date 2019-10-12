@@ -10,19 +10,8 @@ from pubpublica import utils
 
 app = Flask(__name__)
 
-redis_config = utils.get_redis_secrets()
-cache_config = {
-    "CACHE_TYPE": "redis",
-    "CACHE_KEY_PREFIX": "pubp-",
-    "CACHE_DEFAULT_TIMEOUT": 300,
-}
-
-# TODO: extract config setup
-if app.debug:
-    cache_config["CACHE_TYPE"] = "null"
-
-config = {**cache_config, **redis_config}
-cache = Cache(config=config)
+cache_config = utils.load_secrets(".redis_secrets")
+cache = Cache(config=cache_config)
 cache.init_app(app)
 
 
