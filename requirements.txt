@@ -1,3 +1,5 @@
 wheel
 uWSGI==2.0.18
 Flask==1.1.1
+redis==3.3.10
+Flask-Caching==1.7.2

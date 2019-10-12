@@ -4,13 +4,32 @@ import random
 
 from flask import Flask, render_template, make_response
 from flask import request
+from flask_caching import Cache
 
 from pubpublica import utils
 
 app = Flask(__name__)
 
+config = {
+    "CACHE_TYPE": "redis",
+    "CACHE_KEY_PREFIX": "pubp",
+    "CACHE_DEFAULT_TIMEOUT": 300,
+    "CACHE_REDIS_HOST": "localhost",
+    "CACHE_REDIS_PORT": "6379",
+    "CACHE_REDIS_URL": "redis://localhost:6379",
+    "CACHE_REDIS_PASSWORD": os.environ.get("CACHE_KODE"),  # store secrets in vault?
+}
+
+# TODO: extract config setup
+if app.debug:
+    config["CACHE_TYPE"] = "null"
+
+cache = Cache(config=config)
+cache.init_app(app)
+
 
 @app.route("/")
+@cache.cached(timeout=60)
 def index():
     pubs = utils.get_publications("pubpublica/publications/")
 
@@ -19,6 +38,7 @@ def index():
 
 
 @app.route("/rss")
+@cache.cached(timeout=500)
 def rss():
     pubs = utils.get_publications("pubpublica/publications/")
     pubs = utils.rss_convert(pubs)
