@@ -10,20 +10,18 @@ from pubpublica import utils
 
 app = Flask(__name__)
 
-config = {
+redis_config = utils.get_redis_secrets()
+cache_config = {
     "CACHE_TYPE": "redis",
-    "CACHE_KEY_PREFIX": "pubp",
+    "CACHE_KEY_PREFIX": "pubp-",
     "CACHE_DEFAULT_TIMEOUT": 300,
-    "CACHE_REDIS_HOST": "localhost",
-    "CACHE_REDIS_PORT": "6379",
-    "CACHE_REDIS_URL": "redis://localhost:6379",
-    "CACHE_REDIS_PASSWORD": os.environ.get("CACHE_KODE"),  # store secrets in vault?
 }
 
 # TODO: extract config setup
 if app.debug:
-    config["CACHE_TYPE"] = "null"
+    cache_config["CACHE_TYPE"] = "null"
 
+config = {**cache_config, **redis_config}
 cache = Cache(config=config)
 cache.init_app(app)
 

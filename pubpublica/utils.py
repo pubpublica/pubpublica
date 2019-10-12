@@ -3,6 +3,16 @@ import json
 import datetime
 
 
+def get_redis_secrets():
+    file = ".redis_secrets"
+
+    if not os.path.exists(file):
+        return {}
+
+    with open(file, "r") as f:
+        return json.load(f)
+
+
 def get_publication_files(path):
     cwd = os.getcwd()
     pubdir = os.path.join(cwd, path)
