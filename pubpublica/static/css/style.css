@@ -12,6 +12,10 @@ a {
     text-decoration: none;
 }
 
+pre {
+    white-space: pre-wrap;
+}
+
 hr {
     width: 100%;
     border: 0;
