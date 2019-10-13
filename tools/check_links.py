@@ -5,14 +5,10 @@ import json
 import requests
 
 
-def main():
-    if len(sys.argv) < 1:
-        print("usage: python check_links.py /path/to/dir")
-
+def check(path):
     print("checking links...")
 
     cwd = os.getcwd()
-    path = sys.argv[1]
     dir = os.path.join(cwd, path)
 
     files = []
@@ -56,4 +52,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) < 2:
+        print("usage: python check_links.py /path/to/dir")
+        sys.exit(1)
+
+    path = sys.argv[1]
+    check(path)
