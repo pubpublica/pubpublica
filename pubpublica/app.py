@@ -9,29 +9,36 @@ from flask_caching import Cache
 from pubpublica import utils
 
 app = Flask(__name__)
+app.config.update(utils.load_secrets(".pubpublica"))
+app.config.update(utils.load_secrets(".flask_secrets"))
 
-config = {}
-config.update(utils.load_secrets(".redis_secrets"))
+cache_config = {}
+cache_config.update(utils.load_secrets(".redis_secrets"))
 
-cache = Cache(config=config)
+cache = Cache(config=cache_config)
 cache.init_app(app)
 
 
 @app.route("/")
 @cache.cached(timeout=60)
 def index():
-    pubs = utils.get_publications("pubpublica/publications/")
+    ctx = app.config.get("pubpublica")
 
-    ctx = {"publications": pubs}
+    pubs = utils.get_publications(ctx.get("PUBLICATIONS_PATH"))
+    ctx.update({"publications": pubs})
+
     return render_template("index.html", ctx=ctx)
 
 
 @app.route("/rss")
 @cache.cached(timeout=500)
 def rss():
-    pubs = utils.get_publications("pubpublica/publications/")
+    ctx = app.config.get("pubpublica")
+
+    pubs = utils.get_publications(ctx.get("PUBLICATIONS_PATH"))
     pubs = utils.rss_convert(pubs)
-    ctx = {"publications": pubs}
+
+    ctx.update({"publications": pubs})
 
     response = make_response(render_template("rss.xml", ctx=ctx))
     response.headers["Content-Type"] = "application/xml"
