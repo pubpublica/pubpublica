@@ -10,8 +10,10 @@ from pubpublica import utils
 
 app = Flask(__name__)
 
-cache_config = utils.load_secrets(".redis_secrets")
-cache = Cache(config=cache_config)
+config = {}
+config.update(utils.load_secrets(".redis_secrets"))
+
+cache = Cache(config=config)
 cache.init_app(app)
 
 
