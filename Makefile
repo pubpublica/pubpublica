@@ -2,7 +2,7 @@ serve:
 	uwsgi --ini pubpublica.ini
 
 debug:
-	FLASK_DEBUG=1 python wsgi.py
+	FLASK_ENV=development FLASK_DEBUG=1 python wsgi.py
 
 test:
 	pytest
@@ -16,5 +16,5 @@ status:
 provision:
 	python tools/provision.py $(host)
 
-deploy: test
+deploy:
 	python tools/deploy.py $(host)

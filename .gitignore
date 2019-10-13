@@ -1,3 +1,4 @@
 __pycache__/
 venv/
 /.redis_secrets
+/.flask_secrets
