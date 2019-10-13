@@ -40,6 +40,20 @@ header h1 {
     font-size: 1.5em;
 }
 
+footer {
+    text-align: center;
+    font-size: .7em;
+    color: #aeaeae;
+}
+
+footer .item {
+    margin: 0 10px;
+}
+
+footer a {
+    color: #aeaeae;
+}
+
 .container {
     display: flex;
     flex-direction: row;
