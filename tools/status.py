@@ -1,12 +1,14 @@
 import os
 import sys
 import json
-
 import getpass
+
 from paramiko.config import SSHConfig
 from fabric import Config, Connection
-
 from termcolor import colored
+
+import util
+from util import Guard
 
 
 def is_service_active(c, service):
@@ -106,16 +108,7 @@ def is_online(c, host):
 
 
 def main(host):
-    config = Config()
-
-    settings = {"hide": True, "warn": True}
-    config["sudo"].update(settings)
-    config["run"].update(settings)
-
-    sudo_pass = getpass.getpass("sudo password: ")
-    config["sudo"].update({"password": sudo_pass})
-
-    c = Connection(host, config=config)
+    c = util.connect(host, True)
 
     print("----------")
     online = is_online(c, host)
