@@ -15,7 +15,7 @@
     {% block content %} {% endblock %}
 
     <footer>
-      <i class="item timestamp">{{ctx.timestamp}}</i>
+      <i class="item timestamp">{{ctx.timestamp|replace('T',' ')|truncate(19, True,end='')}}</i>
       <a class="item" target="_blank" href="https://github.com/pubpublica/pubpublica/tree/{{ctx.commit}}">{{ctx.commit[:7]}}</a>
     </footer>
   </body>
