@@ -83,11 +83,12 @@ def pubpublica_version(c):
 def main(host):
     config = Config()
 
+    settings = {"hide": True, "warn": True}
+    config["sudo"].update(settings)
+    config["run"].update(settings)
+
     sudo_pass = getpass.getpass("sudo password: ")
-    config["sudo"]["password"] = sudo_pass
-    config["sudo"]["hide"] = True
-    config["run"]["hide"] = True
-    config["run"]["warn"] = True
+    config["sudo"].update({"password": sudo_pass})
 
     c = Connection(host, config=config)
 
@@ -109,7 +110,7 @@ def main(host):
     print(service_status(c, "fail2ban"))
     print("----------")
     ver = pubpublica_version(c)
-    print(f"pubpublica version: {ver}")
+    print(f"version: {ver}")
 
 
 if __name__ == "__main__":
