@@ -9,11 +9,13 @@ from flask_caching import Cache
 from pubpublica import utils
 
 app = Flask(__name__)
-app.config.update(utils.load_secrets(".pubpublica"))
-app.config.update(utils.load_secrets(".flask_secrets"))
+app.config.update(utils.load_json(".pubpublica"))
+app.config.update(utils.load_json(".flask"))
+
+print(app.config)
 
 cache_config = {}
-cache_config.update(utils.load_secrets(".redis_secrets"))
+cache_config.update(utils.load_json(".redis"))
 
 cache = Cache(config=cache_config)
 cache.init_app(app)
@@ -22,9 +24,9 @@ cache.init_app(app)
 @app.route("/")
 @cache.cached(timeout=60)
 def index():
-    ctx = app.config.get("pubpublica")
+    ctx = app.config.get("pubpublica", {})
 
-    pubs = utils.get_publications(ctx.get("PUBLICATIONS_PATH"))
+    pubs = utils.get_publications(ctx.get("PUBLICATIONS_PATH", {}))
     ctx.update({"publications": pubs})
 
     return render_template("index.html", ctx=ctx)
@@ -33,9 +35,9 @@ def index():
 @app.route("/rss")
 @cache.cached(timeout=500)
 def rss():
-    ctx = app.config.get("pubpublica")
+    ctx = app.config.get("pubpublica", {})
 
-    pubs = utils.get_publications(ctx.get("PUBLICATIONS_PATH"))
+    pubs = utils.get_publications(ctx.get("PUBLICATIONS_PATH", {}))
     pubs = utils.rss_convert(pubs)
 
     ctx.update({"publications": pubs})

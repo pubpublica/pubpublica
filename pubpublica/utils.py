@@ -6,9 +6,9 @@ import datetime
 def load_json(file):
     try:
         with open(file, "r") as f:
-            j = json.load(f)
-            return j or {}
+            return json.load(f)
     except Exception as err:
+        print(f"failed to load json from {file}")
         print(err)
         return {}
 
