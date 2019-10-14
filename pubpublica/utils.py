@@ -3,10 +3,11 @@ import json
 import datetime
 
 
-def load_secrets(file):
+def load_json(file):
     try:
         with open(file, "r") as f:
-            return json.load(f)
+            j = json.load(f)
+            return j or {}
     except Exception as err:
         print(err)
         return {}
