@@ -3,6 +3,7 @@ import sys
 import json
 
 import getpass
+from paramiko.config import SSHConfig
 from fabric import Config, Connection
 
 from termcolor import colored
@@ -80,6 +81,30 @@ def pubpublica_version(c):
     return f'[{date}] {colored(commit, "yellow")} {tags}- "{msg}"'
 
 
+def is_online(c, host):
+    config = SSHConfig()
+    with open("/home/jens/.ssh/config", "r") as f:
+        config.parse(f)
+
+    host_map = config.lookup(host)
+
+    if not host_map:
+        print(f"could not find {host} in ssh config")
+        return False
+
+    ip = host_map.get("hostname")
+    ping = c.local(f"ping -c 1 {ip}")
+
+    is_online = ping.exited == 0
+
+    if is_online:
+        print(f"{host}: " + colored("online", "green"))
+    else:
+        print(f"{host}: " + colored("offline", "red"))
+
+    return is_online
+
+
 def main(host):
     config = Config()
 
@@ -91,6 +116,11 @@ def main(host):
     config["sudo"].update({"password": sudo_pass})
 
     c = Connection(host, config=config)
+
+    print("----------")
+    online = is_online(c, host)
+    if not online:
+        sys.exit(1)
 
     print("----------")
     print(c.run("uname -a").stdout.strip())
