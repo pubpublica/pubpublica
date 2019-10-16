@@ -23,33 +23,31 @@ from util import Guard
 pwstore = PasswordStore()
 
 
-def gather_local_build_info(c):
+def build_context(c):
     with Guard("· gathering build information..."):
-        cfg = {}
+        context = config.get("BUILD") or {}
 
         commit = git.latest_commit_hash(c, ".")
-        cfg.update({"COMMIT_HASH": commit})
+        context.update({"COMMIT_HASH": commit})
 
-        timestamp = datetime.datetime.utcnow().isoformat()
-        cfg.update({"TIMESTAMP": timestamp})
+        timestamp = util.timestamp()
+        context.update({"TIMESTAMP": timestamp})
 
-        config_path = config.get("LOCAL_CONFIG_PATH")
-        template = os.path.join(config_path, ".pubpublica")
-        build_info = util.template(template, cfg)
-
-        return json.loads(build_info)
+        return context
 
 
-def pack_project(c, build_info):
+
+
+def pack_project(c, context):
     def tar_filter(info):
         if "__pycache__" in info.name:
             return None
-
         return info
 
     with Guard("· packing..."):
-        commit = build_info.get("COMMIT_HASH")[:7]
-        with tarfile.open(f"build/pubpublica-{commit}.tar.gz", "w:gz") as tar:
+        commit = context.get("COMMIT_HASH")[:7]
+        artifact = f"build/pubpublica-{commit}.tar.gz"
+        with tarfile.open(artifact, "w:gz") as tar:
             for f in [
                 "requirements.txt",
                 "pubpublica.ini",
@@ -60,7 +58,11 @@ def pack_project(c, build_info):
                 tar.add(f, filter=tar_filter)
 
 
-def unpack_project(c):
+def transfer_project(c, context):
+    with Guard("· transferring..."):
+        pass
+
+def unpack_project(c, context):
     with Guard("· unpacking..."):
         pass
 
@@ -70,7 +72,7 @@ def restart_service(c, service):
         pass
 
 
-def setup_flask(c):
+def setup_flask(c, context):
     with Guard(f"· setting up flask..."):
         cfg = config.get("FLASK")
 
@@ -80,12 +82,12 @@ def setup_flask(c):
             cfg.update({"FLASK_SECRET_KEY": pw})
             cfg.pop("FLASK_SECRET_KEY_PATH", None)
 
-        path = config.get("LOCAL_CONFIG_PATH")
+        path = context.get("LOCAL_CONFIG_PATH")
         flask_template = os.path.join(path, ".flask")
         flask_config = util.template(flask_template, cfg)
 
 
-def setup_redis(c):
+def setup_redis(c, context):
     with Guard(f"· setting up redis..."):
         cfg = config.get("REDIS")
 
@@ -95,34 +97,37 @@ def setup_redis(c):
             cfg.update({"REDIS_PASSWORD": pw})
             cfg.pop("REDIS_PASSWORD_PATH", None)
 
-        path = config.get("LOCAL_CONFIG_PATH")
+        path = context.get("LOCAL_CONFIG_PATH")
         redis_template = os.path.join(path, ".redis")
         redis_config = util.template(redis_template, cfg)
 
 
-def pre_deploy(c, build_info):
+
+
+def pre_deploy(c, context):
     print("PRE DEPLOY")
-    print("· checking dependencies...")
+    context.update({"DEPLOY_START_TIME": util.timestamp()})
+    check_dependencies(c, context)
 
 
-def deploy(c, build_info):
+def deploy(c, context):
     print("DEPLOY")
-    pack_project(c, build_info)
-    print("· transferring...")
-    unpack_project(c)
-    print("· writing config files...")
-    print("· changing owners, groups, and modes...")
-    print("· creating links...")
-    print("· making virtual environment...")
-    print("· installing app dependencies...")
-    setup_flask(c)
-    setup_redis(c)
+    pack_project(c, context)
+    transfer_project(c, context)
+    unpack_project(c, context)
+
+    setup_pubpublica(c, context)
+    setup_flask(c, context)
+    setup_redis(c, context)
 
 
-def post_deploy(c, build_info):
+def post_deploy(c, context):
     print("POST DEPLOY")
-    restart_service(c, "nginx")
-    restart_service(c, "pubpublica")
+    # systemd.enable(c, "pubpublica")
+    # systemd.start(c, "pubpublica")
+    # systemd.enable(c, "nginx")
+    # systemd.start(c, "nginx")
+    context.update({"DEPLOY_END_TIME": util.timestamp()})
 
 
 def main(host):
@@ -130,10 +135,13 @@ def main(host):
         local = Context()
         c = util.connect(host)
 
-        build_info = gather_local_build_info(local)
-        pre_deploy(c, build_info)
-        deploy(c, build_info)
-        post_deploy(c, build_info)
+        context = build_context(local)
+
+        pre_deploy(c, context)
+        deploy(c, context)
+        post_deploy(c, context)
+
+        util.print_json(context)
 
         log.success("deployment complete")
     except KeyboardInterrupt:
