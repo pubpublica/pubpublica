@@ -6,6 +6,8 @@ from fabric import Config, Connection
 
 from jinja2 import Template
 
+import log
+
 
 def template(file, config={}):
     contents = ""
@@ -41,6 +43,6 @@ class Guard:
 
     def __exit__(self, type, value, traceback):
         if not (type and value and traceback):
-            print(colored("DONE", "green"))
+            log.success("DONE")
         else:
-            print(colored("FAILED", "red"))
+            log.error("FAILED")

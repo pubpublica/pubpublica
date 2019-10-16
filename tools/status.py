@@ -7,6 +7,7 @@ from paramiko.config import SSHConfig
 from fabric import Config, Connection
 from termcolor import colored
 
+import log
 import util
 from util import Guard
 
@@ -86,7 +87,7 @@ def is_online(c, host):
     host_map = config.lookup(host)
 
     if not host_map:
-        print(f"could not find {host} in ssh config")
+        log.warning(f"could not find {host} in ssh config")
         return False
 
     ip = host_map.get("hostname")
