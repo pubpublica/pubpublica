@@ -57,6 +57,8 @@ def pack_project(c, context):
             ]:
                 tar.add(f, filter=tar_filter)
 
+        context.update({"ARTIFACT": artifact})
+
 
 def transfer_project(c, context):
     with Guard("· transferring..."):
