@@ -1,6 +1,8 @@
 import sys
-
+import json
 import getpass
+import datetime
+
 from termcolor import colored
 from fabric import Config, Connection
 
@@ -19,7 +21,8 @@ def template(file, config={}):
         contents = f.read()
 
     template = Template(contents)
-    return template.render(config)
+    rendering = template.render(config)
+    return json.loads(rendering)
 
 
 def connect(host, sudo=False):
