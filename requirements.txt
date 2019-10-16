@@ -4,4 +4,5 @@ redis==3.3.10
 Flask==1.1.1
 Flask-Caching==1.7.2
 fabric==2.5.0
+pypass==0.2.1
 git+https://github.com/jensecj/patchwork.git
