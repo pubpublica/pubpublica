@@ -19,22 +19,18 @@ cache_config.update(util.load_json(".redis"))
 cache = Cache(config=cache_config)
 cache.init_app(app)
 
-def default_context():
-    return {"commit": "", "timestamp": ""}
-
 
 @app.route("/")
-@cache.cached(timeout=60)
+@cache.cached(timeout=300)
 def index():
-    ctx = default_context()
-    ctx.update(app.config.get("pubpublica", {}))
+    ctx = app.config.get("pubpublica") or {}
 
     pubs = []
-    path = app.config.get("PUBLICATIONS_PATH")
+    path = ctx.get("PUBLICATIONS_PATH")
     if path:
         pubs = util.get_publications(path)
 
-    ctx.update({"publications": pubs})
+    ctx.update({"PUBLICATIONS": pubs})
 
     return render_template("index.html", ctx=ctx)
 
@@ -42,17 +38,16 @@ def index():
 @app.route("/rss")
 @cache.cached(timeout=500)
 def rss():
-    ctx = default_context()
-    ctx = app.config.get("pubpublica", {})
+    ctx = app.config.get("pubpublica") or {}
 
     pubs = []
-    path = app.config.get("PUBLICATIONS_PATH")
+    path = ctx.get("PUBLICATIONS_PATH")
     if path:
         pubs = util.get_publications(path)
 
     pubs = util.rss_convert(pubs)
 
-    ctx.update({"publications": pubs})
+    ctx.update({"PUBLICATIONS": pubs})
 
     response = make_response(render_template("rss.xml", ctx=ctx))
     response.headers["Content-Type"] = "application/xml"

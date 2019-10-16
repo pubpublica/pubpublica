@@ -4,7 +4,7 @@
     <title>pub publica</title>
     <link>https://www.pubpublica.org/</link>
     <description>public publications</description>
-    {% for pub in ctx.publications %}
+    {% for pub in ctx.PUBLICATIONS %}
     <item>
       <title>{{ pub.title }}</title>
       <link>{{ pub.sitelink }}</link>

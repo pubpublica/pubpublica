@@ -49,7 +49,7 @@ def pack_project(c, build_info):
         return info
 
     with Guard("· packing..."):
-        commit = build_info.get("commit")[:7]
+        commit = build_info.get("COMMIT_HASH")[:7]
         with tarfile.open(f"build/pubpublica-{commit}.tar.gz", "w:gz") as tar:
             for f in [
                 "requirements.txt",

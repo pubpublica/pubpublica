@@ -7,6 +7,7 @@ config = {
         "GROUP": "pubpublica",
         "APP_PATH": "/var/www/pubpublica/",
     },
+    "PUBPUBLICA": {"PUBLICATIONS_PATH": "publications/"},
     "FLASK": {"FLASK_SECRET_KEY_PATH": "cayenne/flask/key"},
     "REDIS": {
         "REDIS_HOST": "localhost",

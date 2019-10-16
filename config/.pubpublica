@@ -1,4 +1,5 @@
 {
-    "timestamp": "{{TIMESTAMP}}",
-    "commit": "{{COMMIT_HASH}}"
+    "TIMESTAMP": "{{TIMESTAMP}}",
+    "COMMIT_HASH": "{{COMMIT_HASH}}",
+    "PUBLICATIONS_PATH": "{{PUBLICATIONS_PATH}}"
 }
