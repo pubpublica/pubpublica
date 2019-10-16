@@ -1,3 +1,4 @@
+import sys
 from termcolor import colored
 
 
@@ -10,4 +11,4 @@ def warning(s):
 
 
 def error(s):
-    print(colored(s, "red"))
+    print(colored(s, "red"), file=sys.stderr)
