@@ -1,6 +1,14 @@
 config = {
-    "LOCAL_CONFIG_PATH": "config/",
-    "PUBLICATIONS_PATH": "publications/",
+    "BUILD": {
+        "LOCAL_CONFIG_PATH": "config/",
+        "DEPENDENCIES": [
+            "python3",
+            "python3-pip",
+            "python3-venv",
+            "redis-server",
+            "nginx",
+        ],
+    },
     "PROVISION": {},
     "DEPLOY": {
         "USER": "pubpublica",
