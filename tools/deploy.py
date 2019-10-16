@@ -36,6 +36,13 @@ def build_context(c):
         return context
 
 
+def check_dependencies(c, context):
+    with Guard("· checking dependencies..."):
+        deps = context.get("DEPENDENCIES")
+        for dep in deps:
+            installed = apt.is_installed(c, dep)
+            if not installed:
+                raise Exception(f"{dep} is not installed.")
 
 
 def pack_project(c, context):
