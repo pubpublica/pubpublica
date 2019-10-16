@@ -3,3 +3,4 @@ venv/
 /.redis
 /.flask
 /.pubpublica
+build/
