@@ -4,6 +4,17 @@ import getpass
 from termcolor import colored
 from fabric import Config, Connection
 
+from jinja2 import Template
+
+
+def template(file, config={}):
+    contents = ""
+    with open(file, "r") as f:
+        contents = f.read()
+
+    template = Template(contents)
+    return template.render(config)
+
 
 def connect(host, sudo=False):
     config = Config()
