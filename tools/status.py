@@ -11,6 +11,25 @@ import util
 from util import Guard
 
 
+def color_by_predicate(pred, true, false):
+    if pred:
+        return colored(true, "green")
+    else:
+        return colored(false, "red")
+
+
+def color_by_range(val, s, low=0.25, mid=0.50, high=0.75):
+    f = float(val)
+    if f < 0.25:
+        return s
+    elif f < 0.50:
+        return colored(s, "green")
+    elif f < 0.75:
+        return colored(s, "yellow")
+    else:
+        return colored(s, "red")
+
+
 def is_service_active(c, service):
     status = c.run(f"systemctl is-active {service}")
     return status.exited == 0 and status.stdout.strip() == "active"
@@ -19,11 +38,8 @@ def is_service_active(c, service):
 def service_status(c, service):
     activity = ""
 
-    if is_service_active(c, service):
-        activity = colored("active", "green")
-    else:
-        activity = colored("inactive", "red")
-
+    active = is_service_active(c, service)
+    activity = color_by_predicate(active, "active", "inactive")
     return f"{service}: {activity}"
 
 
@@ -31,47 +47,26 @@ def ufw_status(c):
     ufw_service = is_service_active(c, "ufw")
     ufw_enabled = c.sudo("sudo ufw status | grep -qw active").exited == 0
 
-    ufw_on = colored("active", "green") if ufw_service else colored("inactive", "red")
-    ufw_fw = colored("enabled", "green") if ufw_enabled else colored("disabled", "red")
+    ufw_on = color_by_predicate(ufw_service, "active", "inactive")
+    ufw_fw = color_by_predicate(ufw_enabled, "enabled", "disabled")
 
     return f"{ufw_on} + {ufw_fw}"
 
 
 def avg_cpu_load(c):
-    def color_load(load):
-        fload = float(load)
-        if fload < 0.25:
-            return load
-        elif fload < 0.50:
-            return colored(load, "green")
-        elif fload < 0.75:
-            return colored(load, "yellow")
-        else:
-            return colored(load, "red")
-
     load_avg = c.run("cat /proc/loadavg | cut -d' ' -f1-3").stdout.strip()
-    loads = [color_load(l) for l in load_avg.split()]
+    loads = [color_by_range(l, l) for l in load_avg.split()]
     return " ".join(loads)
 
 
 def memory_load(c):
-    def color_mem(free, total):
-        free = int(free)
-        total = int(total)
-
-        if free / total < 0.25:
-            return colored(f"{free}mb / {total}mb")
-        if free / total < 0.50:
-            return colored(f"{free}mb / {total}mb", "green")
-        if free / total < 0.75:
-            return colored(f"{free}mb / {total}mb", "yellow")
-        else:
-            return colored(f"{free}mb / {total}mb", "red")
-
     mem = c.run("free -m | sed -n 2p | awk '{print $3 \" \" $2}'").stdout.strip()
-    mems = mem.split()
+    mem = mem.split()
 
-    return color_mem(mems[0], mems[1])
+    free = int(mem[0])
+    total = int(mem[1])
+
+    return color_by_range(float(free / total), f"{free}mb / {total}mb")
 
 
 def pubpublica_version(c):
