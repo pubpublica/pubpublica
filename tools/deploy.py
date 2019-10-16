@@ -11,11 +11,10 @@ import invoke
 from invoke.context import Context
 import fabric
 from fabric import Config, Connection
-from fabrikant import fs, info
-from fabrikant.apps import git
+from fabrikant import fs, info, environment
+from fabrikant.apps import git, systemd, apt
 
 from config import config
-from pubpublica.util import load_json
 
 import log
 import util
