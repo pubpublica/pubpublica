@@ -111,6 +111,23 @@ def setup_redis(c, context):
         redis_config = util.template(redis_template, cfg)
 
 
+def setup_pubpublica(c, context):
+    with Guard(f"· setting up pubpublica..."):
+        pubpublica = config.get("PUBPUBLICA") or {}
+
+        context = {**context, **pubpublica}
+
+        config_path = context.get("LOCAL_CONFIG_PATH")
+        pubpublica_template = os.path.join(config_path, ".pubpublica")
+        pubpublica_config = util.template(pubpublica_template, context)
+
+        print(pubpublica_config)
+
+        print("· writing config files...")
+        print("· changing owners, groups, and modes...")
+        print("· creating links...")
+        print("· making virtual environment...")
+        print("· installing app dependencies...")
 
 
 def pre_deploy(c, context):
