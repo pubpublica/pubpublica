@@ -104,32 +104,32 @@ def is_online(c, host):
 
 
 def main(host):
-    c = util.connect(host, True)
+    try:
+        c = util.connect(host, True)
 
-    print("----------")
-    online = is_online(c, host)
-    if not online:
-        sys.exit(1)
+        print("----------")
+        print(c.run("uname -a").stdout.strip())
+        print("----------")
 
-    print("----------")
-    print(c.run("uname -a").stdout.strip())
-    print("----------")
+        load_avg = avg_cpu_load(c)
+        print(f"load average: {load_avg}")
 
-    load_avg = avg_cpu_load(c)
-    print(f"load average: {load_avg}")
+        mem_load = memory_load(c)
+        print(f"memory load: {mem_load}")
 
-    mem_load = memory_load(c)
-    print(f"memory load: {mem_load}")
-
-    print("----------")
-    print(service_status(c, "nginx"))
-    print(service_status(c, "pubpublica"))
-    print("----------")
-    print("ufw: " + ufw_status(c))
-    print(service_status(c, "fail2ban"))
-    print("----------")
-    ver = pubpublica_version(c)
-    print(f"version: {ver}")
+        print("----------")
+        print(service_status(c, "nginx"))
+        print(service_status(c, "pubpublica"))
+        print("----------")
+        print("ufw: " + ufw_status(c))
+        print(service_status(c, "fail2ban"))
+        print("----------")
+        ver = pubpublica_version(c)
+        print(f"version: {ver}")
+    except KeyboardInterrupt:
+        pass
+    except Exception as err:
+        print(err)
 
 
 if __name__ == "__main__":
