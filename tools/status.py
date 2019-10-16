@@ -32,7 +32,7 @@ def ufw_status(c):
     ufw_enabled = c.sudo("sudo ufw status | grep -qw active").exited == 0
 
     ufw_on = colored("active", "green") if ufw_service else colored("inactive", "red")
-    ufw_fw = colored("online", "green") if ufw_enabled else colored("offline", "red")
+    ufw_fw = colored("enabled", "green") if ufw_enabled else colored("disabled", "red")
 
     return f"{ufw_on} + {ufw_fw}"
 
