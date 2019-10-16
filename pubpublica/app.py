@@ -52,14 +52,3 @@ def rss():
     response = make_response(render_template("rss.xml", ctx=ctx))
     response.headers["Content-Type"] = "application/xml"
     return response
-
-
-def get_query_args(query):
-    args = request.args.get(query)
-    return args.split() if args else []
-
-
-@app.route("/c/")
-def custom():
-    tags = get_query_args("tags")
-    return f"tags: {tags}!"
