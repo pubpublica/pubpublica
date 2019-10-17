@@ -130,8 +130,8 @@ def setup_flask(c, context):
             cfg.update({"FLASK_SECRET_KEY": pw})
             cfg.pop("FLASK_SECRET_KEY_PATH", None)
 
-        path = context.get("LOCAL_CONFIG_PATH")
-        flask_template = os.path.join(path, ".flask")
+        config_path = context.get("LOCAL_CONFIG_PATH")
+        flask_template = os.path.join(config_path, ".flask")
         flask_config = util.template(flask_template, cfg)
 
     with Guard("· writing config files..."):
@@ -150,8 +150,8 @@ def setup_redis(c, context):
             cfg.update({"REDIS_PASSWORD": pw})
             cfg.pop("REDIS_PASSWORD_PATH", None)
 
-        path = context.get("LOCAL_CONFIG_PATH")
-        redis_template = os.path.join(path, ".redis")
+        config_path = context.get("LOCAL_CONFIG_PATH")
+        redis_template = os.path.join(config_path, ".redis")
         redis_config = util.template(redis_template, cfg)
 
     with Guard("· writing config files..."):
