@@ -122,7 +122,7 @@ def setup_flask(c, context):
     print("setting up flask")
 
     with Guard("· building config files..."):
-        cfg = config.get("FLASK")
+        cfg = config.get("FLASK") or {}
 
         path = cfg.get("FLASK_SECRET_KEY_PATH")
         if path:
@@ -142,7 +142,7 @@ def setup_redis(c, context):
     print("setting up redis")
 
     with Guard("· building config files..."):
-        cfg = config.get("REDIS")
+        cfg = config.get("REDIS") or {}
 
         path = cfg.get("REDIS_PASSWORD_PATH")
         if path:
