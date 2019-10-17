@@ -43,13 +43,16 @@ def build_context(c):
         return context
 
 
-def check_dependencies(c, context):
-    with Guard("· checking dependencies..."):
-        deps = context.get("DEPENDENCIES")
-        for dep in deps:
-            installed = apt.is_installed(c, dep)
-            if not installed:
-                raise Exception(f"{dep} is not installed.")
+def check_git(c, context):
+    with Guard("· checking git repo..."):
+        root = context.get("ROOT")
+        dirty = git.is_dirty(c, root)
+
+        if dirty is None:
+            raise Exception(f"{root} is not a repository")
+
+        if dirty:
+            raise Exception("repository is dirty")
 
 
 def check_versions(c, context):
@@ -66,6 +69,15 @@ def check_versions(c, context):
         local_ver = context.get("LOCAL_VERSION")
         if not util.version_newer(local_ver, remote_ver):
             raise Exception(f"{local_ver} is older or equal to deployed {remote_ver}")
+
+
+def check_dependencies(c, context):
+    with Guard("· checking dependencies..."):
+        deps = context.get("DEPENDENCIES")
+        for dep in deps:
+            installed = apt.is_installed(c, dep)
+            if not installed:
+                raise Exception(f"{dep} is not installed.")
 
 
 def pack_project(c, context):
@@ -165,9 +177,10 @@ def setup_pubpublica(c, context):
         setup_pubpublica_virtualenv(c, context)
 
 
-def pre_deploy(c, context):
+def pre_deploy(c, local, context):
     print("PRE DEPLOY")
     context.update({"DEPLOY_START_TIME": util.timestamp()})
+    check_git(local, context)
     check_versions(c, context)
     check_dependencies(c, context)
 
@@ -199,7 +212,7 @@ def main(host):
 
         context = build_context(local)
 
-        pre_deploy(c, context)
+        pre_deploy(c, local, context)
         deploy(c, context)
         post_deploy(c, context)
 
@@ -209,7 +222,7 @@ def main(host):
     except KeyboardInterrupt:
         pass
     except Exception as err:
-        print(err)
+        log.error(err)
 
 
 if __name__ == "__main__":
