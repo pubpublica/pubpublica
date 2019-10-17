@@ -29,7 +29,7 @@ def build_context(c):
         context.update(config.get("BUILD", {}))
 
         version = util.version()
-        context.update({"VERSION": version})
+        context.update({"LOCAL_VERSION": version})
 
         commit = git.latest_commit_hash(c, ".")
         context.update({"COMMIT_HASH": commit})
@@ -47,6 +47,22 @@ def check_dependencies(c, context):
             installed = apt.is_installed(c, dep)
             if not installed:
                 raise Exception(f"{dep} is not installed.")
+
+
+def check_versions(c, context):
+    with Guard("· checking versions..."):
+        remote_path = context.get("APP_PATH")
+        remote_ver_path = os.path.join(remote_path, "__version__.py")
+        remote_ver = fs.read_file(c, remote_ver_path)
+
+        if not remote_ver:
+            raise Exception(f"unable to retrieve deployed version")
+
+        context.update({"REMOTE_VERSION": remote_ver})
+
+        local_ver = context.get("LOCAL_VERSION")
+        if not util.version_newer(local_ver, remote_ver):
+            raise Exception(f"{local_ver} is older or equal to deployed {remote_ver}")
 
 
 def pack_project(c, context):
@@ -149,6 +165,7 @@ def setup_pubpublica(c, context):
 def pre_deploy(c, context):
     print("PRE DEPLOY")
     context.update({"DEPLOY_START_TIME": util.timestamp()})
+    check_versions(c, context)
     check_dependencies(c, context)
 
 
