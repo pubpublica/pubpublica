@@ -67,7 +67,9 @@ def memory_load(c):
     free = int(mem[0])
     total = int(mem[1])
 
-    return color_by_range(float(free / total), f"{free}mb / {total}mb")
+    pct = int((free / total) * 100.0)
+
+    return color_by_range(float(free / total), f"{free}mb / {total}mb ({pct}%)")
 
 
 def pubpublica_version(c):
