@@ -1,3 +1,4 @@
+import os
 import sys
 import json
 import getpass
@@ -36,6 +37,9 @@ def version_newer(a, b):
 
 
 def template(file, config={}):
+    if not os.path.isfile(file):
+        return {}
+
     contents = ""
     with open(file, "r") as f:
         contents = f.read()
