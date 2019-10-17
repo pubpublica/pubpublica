@@ -2,6 +2,7 @@ import sys
 import json
 import getpass
 import datetime
+import re
 
 from termcolor import colored
 from fabric import Config, Connection
@@ -13,6 +14,17 @@ import log
 
 def timestamp():
     return datetime.datetime.utcnow().isoformat()
+
+
+def version():
+    with open("__version__.py", "r") as f:
+        version = f.read().strip()
+        match = re.search("^\d+\.\d+\.\d+$", version)
+
+        if not match:
+            raise Exception("__version__.py is malformed")
+
+        return version
 
 
 def template(file, config={}):
