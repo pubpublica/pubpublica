@@ -1,13 +1,21 @@
 import os
 import sys
-import json
 
 import requests
 
+import log
+import util
+
+
+def check_link(url):
+    try:
+        r = requests.head(url, allow_redirects=True)
+        return r.status_code
+    except requests.ConnectionError:
+        return None
+
 
 def check(path):
-    print("checking links...")
-
     cwd = os.getcwd()
     dir = os.path.join(cwd, path)
 
@@ -16,39 +24,34 @@ def check(path):
         for f in fs:
             files.append(os.path.join(dir, f))
 
-    down = []
-
+    items = {}
     for file in files:
+        item = util.template(file)
+
+        links = []
+        for l in ["sitelink", "directlink", "summarylink"]:
+            if item.get(l):
+                links.append(item.get(l))
+
+        items.update({file: links})
+
+    exit_code = 0
+    for file, links in items.items():
+        print()
         print(file)
-        with open(file, "r") as f:
-            j = json.load(f)
+        for link in links:
+            code = check_link(link)
 
-            links = []
-            if j.get("sitelink"):
-                links.append(j["sitelink"])
-            if j.get("directlink"):
-                links.append(j["directlink"])
-            if j.get("summarylink"):
-                links.append(j["summarylink"])
+            if not code:
+                log.error(f"XXX: {link}")
+                exit_code += 1
+            elif code == 404:
+                log.error(f"{code}: {link}")
+                exit_code += 1
+            else:
+                print(f"{code}: {link}")
 
-            for link in links:
-                try:
-                    r = requests.head(link)
-
-                    code = r.status_code
-
-                    if code == 404:
-                        down.append(link)
-
-                    print(f"{code}: {link}")
-                except requests.ConnectionError:
-                    print("failed to connect")
-                    down.append(link)
-
-        if down:
-            print("\nDOWN LINKS:")
-            for d in down:
-                print(d)
+    sys.exit(exit_code)
 
 
 if __name__ == "__main__":
