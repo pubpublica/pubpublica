@@ -28,6 +28,9 @@ def build_context(c):
         context = config.get("DEPLOY") or {}
         context.update(config.get("BUILD", {}))
 
+        root = os.getcwd()
+        context.update({"ROOT": root})
+
         version = util.version()
         context.update({"LOCAL_VERSION": version})
 
