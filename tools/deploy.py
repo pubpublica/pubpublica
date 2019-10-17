@@ -11,7 +11,7 @@ import invoke
 from invoke.context import Context
 import fabric
 from fabric import Config, Connection
-from fabrikant import fs, info, environment
+from fabrikant import fs, system
 from fabrikant.apps import git, systemd, apt
 
 from config import config
@@ -73,10 +73,9 @@ def check_versions(c, context):
 
 def check_dependencies(c, context):
     with Guard("· checking dependencies..."):
-        deps = context.get("DEPENDENCIES")
+        deps = context.get("DEPENDENCIES") or []
         for dep in deps:
-            installed = apt.is_installed(c, dep)
-            if not installed:
+            if not apt.is_installed(c, dep):
                 raise Exception(f"{dep} is not installed.")
 
 
