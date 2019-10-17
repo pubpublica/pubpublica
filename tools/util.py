@@ -75,7 +75,7 @@ class Guard:
 
     def __exit__(self, type, value, traceback):
         if not (type and value and traceback):
-            log.success("DONE")
+            log.success("OK")
         else:
             log.error("FAILED")
         sys.stdout.flush()
