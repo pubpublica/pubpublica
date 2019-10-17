@@ -158,6 +158,20 @@ def setup_redis(c, context):
         pass
 
 
+def setup_nginx(c, context):
+    print("setting up nginx")
+
+    with Guard("· building config files..."):
+        cfg = config.get("NGINX") or {}
+
+        config_path = context.get("LOCAL_CONFIG_PATH")
+        nginx_template = os.path.join(config_path, ".nginx")
+        nginx_config = util.template(nginx_template, cfg)
+
+    with Guard("· writing config files..."):
+        pass
+
+
 def setup_pubpublica_access(c, context):
     # create pubpublica user
     # create pubpublica group
@@ -211,6 +225,7 @@ def deploy(c, context):
     setup_pubpublica(c, context)
     setup_flask(c, context)
     setup_redis(c, context)
+    setup_nginx(c, context)
 
 
 def post_deploy(c, context):
