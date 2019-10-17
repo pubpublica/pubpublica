@@ -25,7 +25,8 @@ pwstore = PasswordStore()
 
 def build_context(c):
     with Guard("· gathering build information..."):
-        context = config.get("BUILD") or {}
+        context = config.get("DEPLOY") or {}
+        context.update(config.get("BUILD", {}))
 
         version = util.version()
         context.update({"VERSION": version})
