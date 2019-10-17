@@ -4,6 +4,8 @@ import getpass
 import datetime
 import re
 
+import packaging.version
+
 from termcolor import colored
 from fabric import Config, Connection
 
@@ -25,6 +27,12 @@ def version():
             raise Exception("__version__.py is malformed")
 
         return version
+
+
+def version_newer(a, b):
+    a = packaging.version.parse(a)
+    b = packaging.version.parse(b)
+    return a > b
 
 
 def template(file, config={}):
