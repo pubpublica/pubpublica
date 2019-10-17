@@ -18,7 +18,7 @@ from config import config
 
 import log
 import util
-from util import Guard
+from util import Guard, GuardWarning
 
 pwstore = PasswordStore()
 
@@ -49,10 +49,10 @@ def check_git(c, context):
         dirty = git.is_dirty(c, root)
 
         if dirty is None:
-            raise Exception(f"{root} is not a repository")
+            raise GuardWarning(f"{root} is not a repository")
 
         if dirty:
-            raise Exception("repository is dirty")
+            raise GuardWarning("repository is dirty")
 
 
 def check_versions(c, context):
