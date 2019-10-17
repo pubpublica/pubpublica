@@ -27,6 +27,9 @@ def build_context(c):
     with Guard("· gathering build information..."):
         context = config.get("BUILD") or {}
 
+        version = util.version()
+        context.update({"VERSION": version})
+
         commit = git.latest_commit_hash(c, ".")
         context.update({"COMMIT_HASH": commit})
 
@@ -56,6 +59,7 @@ def pack_project(c, context):
         artifact = f"build/pubpublica-{commit}.tar.gz"
         with tarfile.open(artifact, "w:gz") as tar:
             for f in [
+                "__version__.py",
                 "requirements.txt",
                 "pubpublica.ini",
                 "wsgi.py",
