@@ -62,7 +62,7 @@ def check_versions(c, context):
         remote_ver = fs.read_file(c, remote_ver_path)
 
         if not remote_ver:
-            raise Exception(f"unable to retrieve deployed version")
+            raise Exception("unable to retrieve deployed version")
 
         context.update({"REMOTE_VERSION": remote_ver})
 
@@ -107,6 +107,7 @@ def transfer_project(c, context):
     with Guard("· transferring..."):
         pass
 
+
 def unpack_project(c, context):
     with Guard("· unpacking..."):
         pass
@@ -118,7 +119,9 @@ def restart_service(c, service):
 
 
 def setup_flask(c, context):
-    with Guard(f"· setting up flask..."):
+    print("setting up flask")
+
+    with Guard("· building config files..."):
         cfg = config.get("FLASK")
 
         path = cfg.get("FLASK_SECRET_KEY_PATH")
@@ -131,9 +134,14 @@ def setup_flask(c, context):
         flask_template = os.path.join(path, ".flask")
         flask_config = util.template(flask_template, cfg)
 
+    with Guard("· writing config files..."):
+        pass
+
 
 def setup_redis(c, context):
-    with Guard(f"· setting up redis..."):
+    print("setting up redis")
+
+    with Guard("· building config files..."):
         cfg = config.get("REDIS")
 
         path = cfg.get("REDIS_PASSWORD_PATH")
@@ -145,6 +153,9 @@ def setup_redis(c, context):
         path = context.get("LOCAL_CONFIG_PATH")
         redis_template = os.path.join(path, ".redis")
         redis_config = util.template(redis_template, cfg)
+
+    with Guard("· writing config files..."):
+        pass
 
 
 def setup_pubpublica_access(c, context):
@@ -161,7 +172,9 @@ def setup_pubpublica_virtualenv(c, context):
 
 
 def setup_pubpublica(c, context):
-    with Guard(f"· setting up pubpublica..."):
+    print("setting up pubpublica")
+
+    with Guard("· building config files..."):
         pubpublica = config.get("PUBPUBLICA") or {}
 
         context = {**context, **pubpublica}
@@ -170,11 +183,15 @@ def setup_pubpublica(c, context):
         pubpublica_template = os.path.join(config_path, ".pubpublica")
         pubpublica_config = util.template(pubpublica_template, context)
 
-        print()
-        print("· writing config files...")
-        setup_pubpublica_access(c, context)
-        print("· creating links...")
-        setup_pubpublica_virtualenv(c, context)
+    with Guard("· writing config files..."):
+        pass
+
+    setup_pubpublica_access(c, context)
+
+    with Guard("· creating links..."):
+        pass
+
+    setup_pubpublica_virtualenv(c, context)
 
 
 def pre_deploy(c, local, context):
