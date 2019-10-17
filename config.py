@@ -13,7 +13,7 @@ config = {
     "DEPLOY": {
         "USER": "pubpublica",
         "GROUP": "pubpublica",
-        "APP_PATH": "/var/www/pubpublica/",
+        "APP_PATH": "pubpublica/",
     },
     "PUBPUBLICA": {"PUBLICATIONS_PATH": "publications/"},
     "FLASK": {"FLASK_SECRET_KEY_PATH": "cayenne/flask/key"},
