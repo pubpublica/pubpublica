@@ -65,6 +65,10 @@ def print_json(j):
     print(json.dumps(j, indent=4))
 
 
+class GuardWarning(Exception):
+    pass
+
+
 class Guard:
     def __init__(self, str):
         self.str = str
@@ -74,8 +78,17 @@ class Guard:
         sys.stdout.flush()
 
     def __exit__(self, type, value, traceback):
+        handled = False
+
         if not (type and value and traceback):
             log.success("OK")
+            handled = True
+        elif type == GuardWarning:
+            log.warning("WARNING")
+            log.warning(value)
+            handled = True
         else:
             log.error("FAILED")
+
         sys.stdout.flush()
+        return handled
