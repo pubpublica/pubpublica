@@ -8,13 +8,17 @@ config = {
             "redis-server",
             "nginx",
         ],
+        "INCLUDES": [
+            "__version__.py",
+            "requirements.txt",
+            "pubpublica.ini",
+            "wsgi.py",
+            "publications/",
+            "pubpublica/",
+        ],
     },
     "PROVISION": {},
-    "DEPLOY": {
-        "USER": "pubpublica",
-        "GROUP": "pubpublica",
-        "APP_PATH": "pubpublica/",
-    },
+    "DEPLOY": {"USER": "pubpublica", "GROUP": "pubpublica", "APP_PATH": "pubpublica/"},
     "PUBPUBLICA": {"PUBLICATIONS_PATH": "publications/"},
     "FLASK": {"FLASK_SECRET_KEY_PATH": "cayenne/flask/key"},
     "REDIS": {

@@ -87,17 +87,11 @@ def pack_project(c, context):
         return info
 
     with Guard("· packing..."):
+        includes = context.get("INCLUDES") or []
         commit = context.get("COMMIT_HASH")[:7]
         artifact = f"build/pubpublica-{commit}.tar.gz"
         with tarfile.open(artifact, "w:gz") as tar:
-            for f in [
-                "__version__.py",
-                "requirements.txt",
-                "pubpublica.ini",
-                "wsgi.py",
-                "publications/",
-                "pubpublica/",
-            ]:
+            for f in includes:
                 tar.add(f, filter=tar_filter)
 
         context.update({"ARTIFACT": artifact})
