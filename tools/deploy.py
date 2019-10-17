@@ -116,6 +116,19 @@ def setup_redis(c, context):
         redis_config = util.template(redis_template, cfg)
 
 
+def setup_pubpublica_access(c, context):
+    # create pubpublica user
+    # create pubpublica group
+    # add user to group
+    with Guard("· changing owners, groups, and modes..."):
+        pass
+
+
+def setup_pubpublica_virtualenv(c, context):
+    with Guard("· making virtual environment..."):
+        pass
+
+
 def setup_pubpublica(c, context):
     with Guard(f"· setting up pubpublica..."):
         pubpublica = config.get("PUBPUBLICA") or {}
@@ -126,13 +139,11 @@ def setup_pubpublica(c, context):
         pubpublica_template = os.path.join(config_path, ".pubpublica")
         pubpublica_config = util.template(pubpublica_template, context)
 
-        print(pubpublica_config)
-
+        print()
         print("· writing config files...")
-        print("· changing owners, groups, and modes...")
+        setup_pubpublica_access(c, context)
         print("· creating links...")
-        print("· making virtual environment...")
-        print("· installing app dependencies...")
+        setup_pubpublica_virtualenv(c, context)
 
 
 def pre_deploy(c, context):
