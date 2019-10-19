@@ -98,21 +98,25 @@ def pack_project(c, context):
 
 
 def transfer_project(c, context):
+    # TODO: copy over app package
     with Guard("· transferring..."):
         pass
 
 
 def unpack_project(c, context):
+    # TODO: unpack app package
     with Guard("· unpacking..."):
         pass
 
 
 def restart_service(c, service):
     with Guard(f"· restarting {service} service..."):
+        # systemd.restart(c, service, sudo=True)
         pass
 
 
 def setup_flask(c, context):
+    # TODO: merge with setup_pubpublica?
     print("setting up flask")
 
     with Guard("· building config files..."):
@@ -133,6 +137,7 @@ def setup_flask(c, context):
 
 
 def setup_redis(c, context):
+    # TODO: copy over redis settings
     print("setting up redis")
 
     with Guard("· building config files..."):
@@ -153,6 +158,7 @@ def setup_redis(c, context):
 
 
 def setup_nginx(c, context):
+    # TODO: copy over nginx settings
     print("setting up nginx")
 
     with Guard("· building config files..."):
@@ -167,14 +173,39 @@ def setup_nginx(c, context):
 
 
 def setup_pubpublica_access(c, context):
-    # create pubpublica user
-    # create pubpublica group
-    # add user to group
-    with Guard("· changing owners, groups, and modes..."):
+    # TODO: create user and group
+    with Guard("· creating user and group..."):
+        # create pubpublica user
+        # create pubpublica group
+        # add user to group
         pass
+
+    # TODO: own app files
+    with Guard("· changing owner, group, and mode..."):
+        app = context.get("APP_PATH")
+
+        if not app:
+            raise Exception("Dont know where the app is located")
+
+        user = context.get("USER")
+        if user:
+            pass
+            # chg = fs.change_owner(c, app, recursive=True)
+
+            # if not chg:
+            #     raise Exception(f"failed to own {app}")
+
+        group = context.get("GROUP")
+        if group:
+            pass
+            # chg = fs.change_owner(c, app, recursive=True)
+
+            # if not chg:
+            #     raise Exception(f"failed to own {app}")
 
 
 def setup_pubpublica_virtualenv(c, context):
+    # TODO: create venv
     with Guard("· making virtual environment..."):
         pass
 
@@ -224,16 +255,18 @@ def deploy(c, context):
 
 def post_deploy(c, context):
     print("POST DEPLOY")
-    # systemd.enable(c, "pubpublica")
-    # systemd.start(c, "pubpublica")
-    # systemd.enable(c, "nginx")
-    # systemd.start(c, "nginx")
+
+    restart_service("pubpublica")
+    restart_service("redis")
+    restart_service("nginx")
+
     context.update({"DEPLOY_END_TIME": util.timestamp()})
 
 
 def main(host):
     try:
         local = Context()
+        # c = util.connect(host, sudo=True)
         c = util.connect(host)
 
         context = build_context(local)
