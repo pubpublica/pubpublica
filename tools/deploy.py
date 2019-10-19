@@ -4,6 +4,7 @@ import json
 import datetime
 import getpass
 import tarfile
+import hashlib
 
 from pypass import PasswordStore
 
@@ -95,6 +96,19 @@ def pack_project(c, context):
                 tar.add(f, filter=tar_filter)
 
         context.update({"ARTIFACT": artifact})
+
+        md5 = hashlib.md5()
+        block_size = 65536
+        with open(artifact, "rb") as f:
+            while True:
+                data = f.read(block_size)
+
+                if not data:
+                    break
+
+                md5.update(data)
+
+        context.update({"ARTIFACT_MD5": md5.hexdigest()})
 
 
 def transfer_project(c, context):
