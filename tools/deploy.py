@@ -266,8 +266,17 @@ def setup_pubpublica_access(c, context):
 
 def setup_pubpublica_virtualenv(c, context):
     # TODO: create venv
-    with Guard("· making virtual environment..."):
-        pass
+    # with Guard("· creating virtual environment..."):
+
+    with Guard("· updating virtual environment..."):
+        cd_dir = "cd pubpublica/"
+        activate_venv = ". venv/bin/activate"
+        pip_install = "pip install -r requirements.txt"
+        cmd = " && ".join([cd_dir, activate_venv, pip_install])
+
+        ret = c.run(cmd, hide=True, warn=True)
+        if not ret.ok:
+            raise GuardWarning(f"failed to update the virtual environment: {ret}")
 
 
 def setup_pubpublica(c, context):
