@@ -120,9 +120,21 @@ def pack_project(c, context):
 
 
 def transfer_project(c, context):
-    # TODO: copy over app package
     with Guard("· transferring..."):
-        pass
+        aftifact_file = context.get("ARTIFACT_FILE")
+        artifact = context.get("ARTIFACT_LOCAL_PATH")
+
+        app_path = context.get("APP_PATH")
+        if not app_path:
+            raise Exception("application has no remote path")
+
+        if artifact and os.path.isfile(artifact):
+            # if transfer fails, an exception is raised
+            c.put(artifact, remote=app_path)
+            return True
+
+        artifact_remote_path = os.path.join(app_path, artifact_file)
+        context.update({"ARTIFACT_REMOTE_PATH": artifact_remote_path})
 
 
 def unpack_project(c, context):
