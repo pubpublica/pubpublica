@@ -16,7 +16,7 @@
 
     <footer>
       <i class="item timestamp">{{ctx.TIMESTAMP|replace('T',' ')|truncate(19, True,end='')}}</i>
-      <a class="item" target="_blank" href="https://github.com/pubpublica/pubpublica/tree/{{ctx.COMMIT_HASH}}">{{ctx.COMMIT_HASH[:7]}}</a>
+      <a class="item" target="_blank" href="https://github.com/pubpublica/pubpublica/tree/{{ctx.COMMIT_HASH}}">{{ctx.SHORT_COMMIT_HASH}}</a>
     </footer>
   </body>
 </html>
