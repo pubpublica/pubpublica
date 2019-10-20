@@ -241,33 +241,27 @@ def setup_nginx(c, context):
 def setup_pubpublica_access(c, context):
     # TODO: create user and group
     with Guard("· creating user and group..."):
+        pass
         # create pubpublica user
         # create pubpublica group
         # add user to group
-        pass
 
-    # TODO: own app files
     with Guard("· changing owner, group, and mode..."):
-        app = context.get("APP_PATH")
+        app_path = context.get("APP_PATH")
+        config_file = context.get("PUBPUBLICA_CONFIG_FILE")
+        config_file_path = os.path.join(app_path, config_file)
 
-        if not app:
-            raise Exception("Dont know where the app is located")
+        # TODO: own all app files
 
         user = context.get("USER")
         if user:
-            pass
-            # chg = fs.change_owner(c, app, recursive=True)
-
-            # if not chg:
-            #     raise Exception(f"failed to own {app}")
+            if not access.change_owner(c, config_file_path, user, sudo=True):
+                raise Exception(f"failed to change owner of {config_file}")
 
         group = context.get("GROUP")
         if group:
-            pass
-            # chg = fs.change_owner(c, app, recursive=True)
-
-            # if not chg:
-            #     raise Exception(f"failed to own {app}")
+            if not access.change_group(c, config_file_path, group, sudo=True):
+                raise Exception(f"failed to change group of {config_file} to")
 
 
 def setup_pubpublica_virtualenv(c, context):
