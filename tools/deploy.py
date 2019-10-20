@@ -12,7 +12,7 @@ import invoke
 from invoke.context import Context
 import fabric
 from fabric import Config, Connection
-from fabrikant import fs, system
+from fabrikant import fs, system, access
 from fabrikant.apps import git, systemd, apt
 
 from config import config
@@ -27,6 +27,7 @@ pwstore = PasswordStore()
 def build_context(c):
     with Guard("· gathering build information..."):
         context = config.get("DEPLOY") or {}
+        context.update(config.get("PROVISION", {}))
         context.update(config.get("BUILD", {}))
 
         root = os.getcwd()
@@ -37,6 +38,7 @@ def build_context(c):
 
         commit = git.latest_commit_hash(c, ".")
         context.update({"COMMIT_HASH": commit})
+        context.update({"SHORT_COMMIT_HASH": commit[:7]})
 
         timestamp = util.timestamp()
         context.update({"TIMESTAMP": timestamp})
@@ -88,7 +90,7 @@ def pack_project(c, context):
 
     with Guard("· packing..."):
         includes = context.get("INCLUDES") or []
-        commit = context.get("COMMIT_HASH")[:7]
+        commit = context.get("SHORT_COMMIT_HASH")
         version = context.get("LOCAL_VERSION")
         artifact = f"build/pubpublica-{version}-{commit}.tar.gz"
         with tarfile.open(artifact, "w:gz") as tar:
