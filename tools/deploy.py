@@ -282,24 +282,42 @@ def setup_pubpublica_virtualenv(c, context):
 def setup_pubpublica(c, context):
     print("setting up pubpublica")
 
+    cfg = config.get("PUBPUBLICA") or {}
+    if not cfg:
+        log.warning("unable to locate pubpublica config")
+
+    ctx = {**context, **cfg}
+
+    local_config_path = context.get("LOCAL_CONFIG_PATH")
+    if not os.path.isdir(local_config_path):
+        raise Exception(f"local config path {local_config_path} does not exist")
+
+    app_path = context.get("APP_PATH")
+    if not app_path:
+        raise Exception("dont know where the app is located")
+
+    config_file = cfg.get("PUBPUBLICA_CONFIG_FILE")
+    if not config_file:
+        raise Exception("dont know where the config_file is located")
+
+    config_file_path = os.path.join(app_path, config_file)
+
     with Guard("· building config files..."):
-        pubpublica = config.get("PUBPUBLICA") or {}
-
-        context = {**context, **pubpublica}
-
-        config_path = context.get("LOCAL_CONFIG_PATH")
-        pubpublica_template = os.path.join(config_path, ".pubpublica")
-        pubpublica_config = util.template(pubpublica_template, context)
+        template_path = os.path.join(local_config_path, config_file)
+        rendered_config = util.template(template_path, ctx)
 
     with Guard("· writing config files..."):
-        pass
+        config_string = json.dumps(rendered_config, indent=4)
+        tmpfile = config_file_path + ".new"
+        fs.overwrite_file(c, config_string, tmpfile, sudo=True)
+        fs.move(c, tmpfile, config_file_path, sudo=True)
 
-    setup_pubpublica_access(c, context)
+    setup_pubpublica_access(c, ctx)
 
     with Guard("· creating links..."):
         pass
 
-    setup_pubpublica_virtualenv(c, context)
+    setup_pubpublica_virtualenv(c, ctx)
 
 
 def pre_deploy(c, local, context):
