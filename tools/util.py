@@ -57,7 +57,7 @@ def connect(host, sudo=False):
     config["run"].update(settings)
 
     if sudo:
-        sudo_pass = getpass.getpass("sudo password: ")
+        sudo_pass = getpass.getpass(f"sudo password on {host}: ")
         config["sudo"].update({"password": sudo_pass})
 
     c = Connection(host, config=config)
