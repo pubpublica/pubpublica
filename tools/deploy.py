@@ -141,11 +141,15 @@ def unpack_project(c, context):
     with Guard("· unpacking..."):
         app_path = context.get("APP_PATH")
         artifact = context.get("ARTIFACT_FILE")
+        artifact_path = os.path.join(app_path, artifact)
         cmd = f"cd {app_path} && tar -xzf {artifact}"
         unpack = c.run(cmd, hide=True, warn=True)
 
         if not unpack.ok:
             raise Exception(f"failed to unpack project: {unpack.stderr}")
+
+        if not fs.remove(c, artifact_path):
+            raise GuardWarning("failed to remove artifact after unpacking")
 
 
 def restart_service(c, service):
