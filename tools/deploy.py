@@ -175,24 +175,52 @@ def setup_flask(c, context):
 
 
 def setup_redis(c, context):
-    # TODO: copy over redis settings
     print("setting up redis")
 
-    with Guard("· building config files..."):
-        cfg = config.get("REDIS") or {}
+    cfg = config.get("REDIS") or {}
+    if not cfg:
+        log.warning("unable to locate redis config")
 
-        path = cfg.get("REDIS_PASSWORD_PATH")
-        if path:
-            pw = pwstore.get_decrypted_password(path).strip()
+    local_config_path = context.get("LOCAL_CONFIG_PATH")
+    if not os.path.isdir(local_config_path):
+        raise Exception(f"local config path {local_config_path} does not exist")
+
+    app_path = context.get("APP_PATH")
+    if not app_path:
+        raise Exception("dont know where the app is located")
+
+    config_file = cfg.get("REDIS_CONFIG_FILE")
+    if not config_file:
+        raise Exception("dont know where the redis config file is located")
+
+    config_file_path = os.path.join(app_path, config_file)
+
+    with Guard("· building config files..."):
+        password_path = cfg.get("REDIS_PASSWORD_PATH")
+        if password_path:
+            pw = pwstore.get_decrypted_password(password_path).strip()
             cfg.update({"REDIS_PASSWORD": pw})
             cfg.pop("REDIS_PASSWORD_PATH", None)
 
-        config_path = context.get("LOCAL_CONFIG_PATH")
-        redis_template = os.path.join(config_path, ".redis")
-        redis_config = util.template(redis_template, cfg)
+        redis_template = os.path.join(local_config_path, config_file)
+        rendered_config = util.template(redis_template, cfg)
 
     with Guard("· writing config files..."):
-        pass
+        config_string = json.dumps(rendered_config, indent=4)
+        tmpfile = config_file_path + ".new"
+        fs.overwrite_file(c, config_string, tmpfile, sudo=True)
+        fs.move(c, tmpfile, config_file_path, sudo=True)
+
+    with Guard("· setting permissions..."):
+        user = context.get("USER")
+        if user:
+            if not access.change_owner(c, config_file_path, user, sudo=True):
+                raise Exception(f"failed to own {config_file}")
+
+        group = context.get("GROUP")
+        if group:
+            if not access.change_group(c, config_file_path, group, sudo=True):
+                raise Exception(f"failed to change group of {config_file} to")
 
 
 def setup_nginx(c, context):
