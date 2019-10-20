@@ -60,18 +60,18 @@ def check_git(c, context):
 
 def check_versions(c, context):
     with Guard("· checking versions..."):
-        remote_path = context.get("APP_PATH")
-        remote_ver_path = os.path.join(remote_path, "__version__.py")
-        remote_ver = fs.read_file(c, remote_ver_path)
+        app_path = context.get("APP_PATH")
+        remote_ver_file = os.path.join(app_path, "__version__.py")
+        v_remote = fs.read_file(c, remote_ver_file)
 
-        if not remote_ver:
+        if not v_remote:
             raise GuardWarning("unable to retrieve deployed version")
 
-        context.update({"REMOTE_VERSION": remote_ver})
+        context.update({"REMOTE_VERSION": v_remote})
 
-        local_ver = context.get("LOCAL_VERSION")
-        if not util.version_newer(local_ver, remote_ver):
-            raise Exception(f"{local_ver} is older or equal to deployed {remote_ver}")
+        v_local = context.get("LOCAL_VERSION")
+        if not util.version_newer(v_local, v_remote):
+            raise GuardWarning(f"{v_local} is older or equal to deployed {v_remote}")
 
 
 def check_dependencies(c, context):
