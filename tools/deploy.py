@@ -255,6 +255,8 @@ def pre_deploy(c, local, context):
     check_git(local, context)
     check_versions(c, context)
     check_dependencies(c, context)
+    if not systemd.stop(c, "pubpublica", sudo=True):
+        log.error("failed to stop the pubpublica servce")
 
 
 def deploy(c, context):
@@ -271,8 +273,9 @@ def deploy(c, context):
 
 def post_deploy(c, context):
     print("POST DEPLOY")
+    if not systemd.start(c, "pubpublica", sudo=True):
+        log.error("failed to start the pubpublica servce")
 
-    restart_service("pubpublica")
     restart_service("redis")
     restart_service("nginx")
 
