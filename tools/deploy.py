@@ -138,9 +138,13 @@ def transfer_project(c, context):
 
 
 def unpack_project(c, context):
-    # TODO: unpack app package
     with Guard("· unpacking..."):
-        pass
+        app_path = context.get("APP_PATH")
+        artifact = context.get("ARTIFACT_FILE")
+        unpack = c.run(f"cd {app_path} && tar -xzf", hide=True, warn=True)
+
+        if not unpack.ok:
+            raise Exception("failed to unpack project: {unpack.stderr}")
 
 
 def restart_service(c, service):
