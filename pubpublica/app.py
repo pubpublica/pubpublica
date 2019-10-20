@@ -8,8 +8,6 @@ from flask_caching import Cache
 
 from pubpublica import util
 
-from config import config
-
 app = Flask(__name__)
 app.config.update(util.load_json(".flask"))
 app.config.update({"pubpublica": util.load_json(".pubpublica")})
