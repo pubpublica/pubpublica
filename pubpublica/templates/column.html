@@ -5,13 +5,19 @@
     <div class="top">
       <i class="date">{{pub.date}}</i>
       {% if pub.directlink %}
-      <a target="_blank" title="direct link" class="link" href="{{pub.directlink}}">D</a>
+      <a target="_blank" title="direct link" class="link" href="{{pub.directlink}}">
+        <img class="icon" src="static/res/icon-pdf.png" alt="direct link" />
+      </a>
       {% endif %}
       {% if pub.summarylink %}
-      <a target="_blank" title="link to summary" class="link" href="{{pub.summarylink}}">S</a>
+      <a target="_blank" title="link to summary" class="link" href="{{pub.summarylink}}">
+        <img class="icon" src="static/res/icon-summary.png" alt="link to summary" />
+      </a>
       {% endif %}
       {% if pub.sitelink %}
-      <a target="_blank" title="link to site" class="link" href="{{pub.sitelink}}">W</a>
+      <a target="_blank" title="link to site" class="link" href="{{pub.sitelink}}">
+        <img class="icon" src="static/res/icon-web.png" alt="link to site" />
+      </a>
       {% endif %}
     </div>
 

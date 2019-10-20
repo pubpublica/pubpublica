@@ -111,6 +111,10 @@ footer a {
     margin: 0 5px;
 }
 
+.pub .icon {
+    height: 20px;
+}
+
 .pub .authors {
     width: 100%;
 }
