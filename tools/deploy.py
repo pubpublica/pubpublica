@@ -31,7 +31,7 @@ def build_context(c):
         context.update(config.get("BUILD", {}))
 
         root = os.getcwd()
-        context.update({"ROOT": root})
+        context.update({"LOCAL_ROOT": root})
 
         version = util.version()
         context.update({"LOCAL_VERSION": version})
@@ -48,7 +48,7 @@ def build_context(c):
 
 def check_git(c, context):
     with Guard("· checking git repo..."):
-        root = context.get("ROOT")
+        root = context.get("LOCAL_ROOT")
         dirty = git.is_dirty(c, root)
 
         if dirty is None:
@@ -101,7 +101,6 @@ def pack_project(c, context):
             for f in includes:
                 tar.add(f, filter=tar_filter)
 
-        context.update({"ARTIFACT_DIR": artifact_dir})
         context.update({"ARTIFACT_FILE": artifact_file})
         context.update({"ARTIFACT_LOCAL_PATH": artifact_path})
 
