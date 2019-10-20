@@ -65,7 +65,7 @@ def check_versions(c, context):
         remote_ver = fs.read_file(c, remote_ver_path)
 
         if not remote_ver:
-            raise Exception("unable to retrieve deployed version")
+            raise GuardWarning("unable to retrieve deployed version")
 
         context.update({"REMOTE_VERSION": remote_ver})
 
@@ -282,8 +282,7 @@ def post_deploy(c, context):
 def main(host):
     try:
         local = Context()
-        # c = util.connect(host, sudo=True)
-        c = util.connect(host)
+        c = util.connect(host, sudo=True)
 
         context = build_context(local)
 
