@@ -92,16 +92,22 @@ def pack_project(c, context):
         includes = context.get("INCLUDES") or []
         commit = context.get("SHORT_COMMIT_HASH")
         version = context.get("LOCAL_VERSION")
-        artifact = f"build/pubpublica-{version}-{commit}.tar.gz"
-        with tarfile.open(artifact, "w:gz") as tar:
+
+        artifact_dir = "build/"
+        artifact_file = f"pubpublica-{version}-{commit}.tar.gz"
+        artifact_path = os.path.join(artifact_dir, artifact_file)
+
+        with tarfile.open(artifact_path, "w:gz") as tar:
             for f in includes:
                 tar.add(f, filter=tar_filter)
 
-        context.update({"ARTIFACT": artifact})
+        context.update({"ARTIFACT_DIR": artifact_dir})
+        context.update({"ARTIFACT_FILE": artifact_file})
+        context.update({"ARTIFACT_LOCAL_PATH": artifact_path})
 
         md5 = hashlib.md5()
         block_size = 65536
-        with open(artifact, "rb") as f:
+        with open(artifact_path, "rb") as f:
             while True:
                 data = f.read(block_size)
 
