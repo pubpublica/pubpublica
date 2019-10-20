@@ -107,6 +107,7 @@ def pack_project(c, context):
         md5 = hashlib.md5()
         block_size = 65536
         with open(artifact_path, "rb") as f:
+            # while data := f.read(block_size): md5.update(data)
             while True:
                 data = f.read(block_size)
 
@@ -347,8 +348,9 @@ def post_deploy(c, context):
     if not systemd.start(c, "pubpublica", sudo=True):
         log.error("failed to start the pubpublica servce")
 
-    restart_service("redis")
-    restart_service("nginx")
+    # TODO: only restart services whoose config has changed
+    restart_service(c, "redis")
+    restart_service(c, "nginx")
 
     context.update({"DEPLOY_END_TIME": util.timestamp()})
 
@@ -359,6 +361,8 @@ def main(host):
         c = util.connect(host, sudo=True)
 
         context = build_context(local)
+
+        # TODO: validate context with jsonschema
 
         pre_deploy(c, local, context)
         deploy(c, context)
