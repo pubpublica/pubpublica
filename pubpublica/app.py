@@ -36,6 +36,7 @@ def index():
         pubs = util.get_publications(path)
 
     ctx = {"PUBLICATIONS": pubs}
+    ctx.update(pubpublica_config)
 
     return render_template("index.html", ctx=ctx)
 
@@ -51,6 +52,7 @@ def rss():
     pubs = util.rss_convert(pubs)
 
     ctx = {"PUBLICATIONS": pubs}
+    ctx.update(pubpublica_config)
 
     response = make_response(render_template("rss.xml", ctx=ctx))
     response.headers["Content-Type"] = "application/xml"
