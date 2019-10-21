@@ -5,6 +5,7 @@ from datetime import datetime
 import getpass
 import tarfile
 import hashlib
+from dataclasses import dataclass
 
 from pypass import PasswordStore
 
@@ -361,12 +362,33 @@ def post_deploy(c, context):
     context.update({"DEPLOY_END_TIME": util.timestamp()})
 
 
-def main(host):
+@click.command()
+@click.argument("host")
+@click.option("-d", "--dry-run", is_flag=True)
+def entry(host, dry_run):
     try:
         local = Context()
         c = util.connect(host, sudo=True)
 
         context = build_context(local)
+
+        if dry_run:
+            print("DRY RUN")
+
+            @dataclass
+            class success:
+                ok: bool = True
+                exited: int = 0
+                stdout: str = ""
+
+            def just_print(*args, **kwargs):
+                args = " ".join(args)
+                print(f"{args}")
+                return success()
+
+            c.run = just_print
+            c.sudo = just_print
+            c.put = just_print
 
         # TODO: validate context with jsonschema
 
@@ -384,9 +406,4 @@ def main(host):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("usage: python deploy.py <host>")
-        sys.exit(1)
-
-    host = sys.argv[1]
-    main(host)
+    entry()
