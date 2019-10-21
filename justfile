@@ -3,7 +3,7 @@ PYTHONPATH := "."
 PYTHON := venv + "/bin/python"
 
 serve:
-	uwsgi --ini pubpublica.ini
+	uwsgi --ini uwsgi.ini
 
 debug:
 	. venv/bin/activate

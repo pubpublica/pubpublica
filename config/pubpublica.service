@@ -6,7 +6,7 @@ After=network.target
 RuntimeDirectory=pubpublica
 WorkingDirectory=/var/www/pubpublica
 Environment="PATH=/var/www/pubpublica/venv/bin"
-ExecStart=/var/www/pubpublica/venv/bin/uwsgi --ini /var/www/pubpublica/pubpublica.ini
+ExecStart=/var/www/pubpublica/venv/bin/uwsgi --ini /var/www/pubpublica/uwsgi.ini
 
 [Install]
 WantedBy=multi-user.target

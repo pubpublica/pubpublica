@@ -17,7 +17,7 @@ config = {
         "INCLUDES": [
             "__version__.py",
             "requirements.txt",
-            "pubpublica.ini",
+            "uwsgi.ini",
             "wsgi.py",
             "publications/",
             "pubpublica/",
