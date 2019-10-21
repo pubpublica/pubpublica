@@ -148,20 +148,26 @@ def pack_project(c, context):
 
 def transfer_project(c, context):
     with Guard("· transferring..."):
-        aftifact_file = context.get("ARTIFACT_FILE")
-        artifact = context.get("ARTIFACT_LOCAL_PATH")
+        local_artifact = context.get("ARTIFACT_LOCAL_PATH")
+        if not local_artifact:
+            raise Exception("no artifact to deployed")
 
-        app_path = context.get("APP_PATH")
-        if not app_path:
-            raise Exception("application has no remote path")
+        if not os.path.isfile(local_artifact):
+            raise Exception("artifact to be deployed is not a file")
 
-        if artifact and os.path.isfile(artifact):
-            # if transfer fails, an exception is raised
-            c.put(artifact, remote=app_path)
-            return True
+        deploy_path = context.get("DEPLOY_PATH")
+        if not fs.create_directory(c, deploy_path, sudo=True):
+            raise Exception("unable to create {deploy_path} on server")
 
-        artifact_remote_path = os.path.join(app_path, artifact_file)
-        context.update({"ARTIFACT_REMOTE_PATH": artifact_remote_path})
+        artifact_file = context.get("ARTIFACT_FILE")
+        artifact_path = os.path.join(deploy_path, artifact_file)
+
+        temp_path = "/tmp"
+        remote_artifact = os.path.join(temp_path, artifact_file)
+
+        # if transfer fails, an exception is raised
+        c.put(local_artifact, remote=remote_artifact)
+        fs.move(c, remote_artifact, artifact_path, sudo=True)
 
 
 def unpack_project(c, context):
