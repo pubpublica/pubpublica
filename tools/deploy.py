@@ -85,7 +85,7 @@ def check_dependencies(c, context):
 
 
 def pack_project(c, context):
-    def tar_filter(info):
+    def _tar_filter(info):
         if "__pycache__" in info.name:
             return None
         return info
@@ -101,7 +101,7 @@ def pack_project(c, context):
 
         with tarfile.open(artifact_path, "w:gz") as tar:
             for f in includes:
-                tar.add(f, filter=tar_filter)
+                tar.add(f, filter=_tar_filter)
 
         context.update({"ARTIFACT_FILE": artifact_file})
         context.update({"ARTIFACT_LOCAL_PATH": artifact_path})
