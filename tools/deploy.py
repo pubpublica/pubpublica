@@ -269,17 +269,6 @@ def setup_redis(c, context):
         fs.write_file(c, config_contents, tmpfile, overwrite=True, sudo=True)
         fs.move(c, tmpfile, remote_config_file_path, sudo=True)
 
-    with Guard("· setting permissions..."):
-        user = context.get("USER")
-        if user:
-            if not access.change_owner(c, remote_config_file_path, user, sudo=True):
-                raise Exception(f"failed to own {config_file}")
-
-        group = context.get("GROUP")
-        if group:
-            if not access.change_group(c, remote_config_file_path, group, sudo=True):
-                raise Exception(f"failed to change group of {config_file} to {group}")
-
 
 def setup_nginx(c, context):
     # TODO: copy over nginx settings
@@ -297,29 +286,33 @@ def setup_nginx(c, context):
 
 
 def setup_pubpublica_access(c, context):
-    # TODO: create user and group
+    deploy_path = context.get("DEPLOY_PATH")
+    if not deploy_path:
+        raise Exception("unable to locate deployed app")
+
+    user = context.get("USER")
+    group = context.get("GROUP")
+
     with Guard("· creating user and group..."):
-        pass
-        # create pubpublica user
-        # create pubpublica group
-        # add user to group
-
-    with Guard("· changing owner, group, and mode..."):
-        deploy_path = context.get("DEPLOY_PATH")
-        config_file = context.get("PUBPUBLICA_CONFIG_FILE")
-        remote_config_file_path = os.path.join(deploy_path, config_file)
-
-        # TODO: own all app files
-
-        user = context.get("USER")
         if user:
-            if not access.change_owner(c, remote_config_file_path, user, sudo=True):
-                raise Exception(f"failed to change owner of {config_file}")
+            if not system.create_user(c, user, sudo=True):
+                raise Exception(f"failed to create user '{user}'")
 
-        group = context.get("GROUP")
         if group:
-            if not access.change_group(c, remote_config_file_path, group, sudo=True):
-                raise Exception(f"failed to change group of {config_file} to {group}")
+            if not system.create_group(c, group, sudo=True):
+                raise Exception(f"failed to create group '{group}")
+
+            if not system.group_add_user(c, group, user, sudo=True):
+                raise Exception(f"failed to add user '{user} to group '{group}")
+
+    with Guard("· changing permissions..."):
+        if user:
+            if not access.change_owner(c, deploy_path, user, recursive=True, sudo=True):
+                raise Exception(f"failed to change owner of deployment")
+
+        if group:
+            if not access.change_group(c, deploy_path, group, recursive=True, sudo=True):
+                raise Exception(f"failed to change group of deployment")
 
 
 def setup_pubpublica_virtualenv(c, context):
