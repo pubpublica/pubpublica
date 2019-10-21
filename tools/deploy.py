@@ -359,6 +359,12 @@ def setup_pubpublica(c, context):
 
     setup_pubpublica_virtualenv(c, ctx)
 
+    version_file = context.get("DEPLOYED_ID_FILE")
+    new_version = context.get("ARTIFACT_ID")
+    version_file_path = os.path.join(app_path, version_file)
+    if not fs.overwrite_file(c, new_version, version_file_path, sudo=True):
+        raise Exception("unable to write new deployment version to {version_file}")
+
 
 def pre_deploy(c, local, context):
     print("PRE DEPLOY")
