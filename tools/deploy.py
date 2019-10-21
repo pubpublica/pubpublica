@@ -108,15 +108,23 @@ def pack_project(c, context):
         includes = context.get("INCLUDES") or []
         commit = context.get("SHORT_COMMIT_HASH")
         version = context.get("LOCAL_VERSION")
+        timestamp = context.get("TIMESTAMP")
+        date = datetime.fromisoformat(timestamp).strftime("%Y-%m-%d")
 
-        artifact_dir = "build/"
-        artifact_file = f"pubpublica-{version}-{commit}.tar.gz"
+        app_path = context.get("APP_PATH")
+
+        artifact_name = f"pubpublica--{date}--{version}--{commit}"
+        artifact_ext = ".tar.gz"
+        artifact_file = artifact_name + artifact_ext
+
+        artifact_dir = os.path.abspath("build/")
         artifact_path = os.path.join(artifact_dir, artifact_file)
 
         with tarfile.open(artifact_path, "w:gz") as tar:
             for f in includes:
                 tar.add(f, filter=_tar_filter)
 
+        context.update({"ARTIFACT_ID": artifact_name})
         context.update({"ARTIFACT_FILE": artifact_file})
         context.update({"ARTIFACT_LOCAL_PATH": artifact_path})
 
