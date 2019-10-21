@@ -48,7 +48,7 @@ def build_context(c):
         return context
 
 
-def check_git(c, context):
+def check_local_git_repo(c, context):
     with Guard("· checking git repo..."):
         root = context.get("LOCAL_ROOT")
         dirty = git.is_dirty(c, root)
@@ -330,7 +330,7 @@ def setup_pubpublica(c, context):
 def pre_deploy(c, local, context):
     print("PRE DEPLOY")
     context.update({"DEPLOY_START_TIME": util.timestamp()})
-    check_git(local, context)
+    check_local_git_repo(local, context)
     check_versions(c, context)
     check_dependencies(c, context)
     if not systemd.stop(c, "pubpublica", sudo=True):
