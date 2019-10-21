@@ -322,21 +322,20 @@ def setup_pubpublica_virtualenv(c, context):
         raise Exception("unable to locate deployed app")
 
     with Guard("· creating virtual environment..."):
-        cd_dir = f"cd {deploy_path}"
-        create_venv = "python3 -m venv venv"
-        cmd = " && ".join([cd_dir, create_venv])
+        venv_dir = os.path.join(deploy_path, "venv")
+        create_venv = f"python3 -m venv {venv_dir}"
 
-        ret = c.run(cmd, hide=True, warn=True)
+        ret = c.sudo(create_venv, hide=True, warn=True)
         if not ret.ok:
             raise Exception(f"failed creating virtual environment: {ret}")
 
     with Guard("· updating virtual environment..."):
-        cd_dir = f"cd {deploy_path}"
-        activate_venv = ". venv/bin/activate"
-        pip_install = "pip install -r requirements.txt"
-        cmd = " && ".join([cd_dir, activate_venv, pip_install])
+        venv_dir = os.path.join(deploy_path, "venv")
+        pip_file = os.path.join(venv_dir, "bin", "pip")
+        requirements_file = os.path.join(deploy_path, "requirements.txt")
+        pip_install = f"{pip_file} install -r {requirements_file}"
 
-        ret = c.run(cmd, hide=True, warn=True)
+        ret = c.sudo(pip_install, hide=True, warn=True)
         if not ret.ok:
             raise Exception(f"failed to update the virtual environment: {ret}")
 
