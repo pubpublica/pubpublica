@@ -276,21 +276,21 @@ def setup_pubpublica_access(c, context):
         # add user to group
 
     with Guard("· changing owner, group, and mode..."):
-        app_path = context.get("APP_PATH")
+        deploy_path = context.get("DEPLOY_PATH")
         config_file = context.get("PUBPUBLICA_CONFIG_FILE")
-        config_file_path = os.path.join(app_path, config_file)
+        remote_config_file_path = os.path.join(deploy_path, config_file)
 
         # TODO: own all app files
 
         user = context.get("USER")
         if user:
-            if not access.change_owner(c, config_file_path, user, sudo=True):
+            if not access.change_owner(c, remote_config_file_path, user, sudo=True):
                 raise Exception(f"failed to change owner of {config_file}")
 
         group = context.get("GROUP")
         if group:
-            if not access.change_group(c, config_file_path, group, sudo=True):
-                raise Exception(f"failed to change group of {config_file} to")
+            if not access.change_group(c, remote_config_file_path, group, sudo=True):
+                raise Exception(f"failed to change group of {config_file} to {group}")
 
 
 def setup_pubpublica_virtualenv(c, context):
@@ -336,11 +336,15 @@ def setup_pubpublica(c, context):
     if not app_path:
         raise Exception("dont know where the app is located")
 
+    deploy_path = context.get("DEPLOY_PATH")
+    if not deploy_path:
+        raise Exception("unable to locate deployed app")
+
     config_file = cfg.get("PUBPUBLICA_CONFIG_FILE")
     if not config_file:
         raise Exception("dont know where the config_file is located")
 
-    config_file_path = os.path.join(app_path, config_file)
+    remote_config_file_path = os.path.join(deploy_path, config_file)
 
     with Guard("· building config files..."):
         template_path = os.path.join(local_config_path, config_file)
@@ -348,9 +352,9 @@ def setup_pubpublica(c, context):
 
     with Guard("· writing config files..."):
         config_string = json.dumps(rendered_config, indent=4)
-        tmpfile = config_file_path + ".new"
+        tmpfile = remote_config_file_path + ".new"
         fs.overwrite_file(c, config_string, tmpfile, sudo=True)
-        fs.move(c, tmpfile, config_file_path, sudo=True)
+        fs.move(c, tmpfile, remote_config_file_path, sudo=True)
 
     setup_pubpublica_access(c, ctx)
 
