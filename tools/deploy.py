@@ -334,8 +334,10 @@ def pre_deploy(c, local, context):
     check_local_git_repo(local, context)
     check_versions(c, context)
     check_dependencies(c, context)
-    if not systemd.stop(c, "pubpublica", sudo=True):
-        log.error("failed to stop the pubpublica servce")
+
+    with Guard("· stopping pubpublica service..."):
+        if not systemd.stop(c, "pubpublica", sudo=True):
+            raise GuardWarning("failed to stop the pubpublica servce")
 
 
 def deploy(c, context):
@@ -352,8 +354,10 @@ def deploy(c, context):
 
 def post_deploy(c, context):
     print("POST DEPLOY")
-    if not systemd.start(c, "pubpublica", sudo=True):
-        log.error("failed to start the pubpublica servce")
+
+    with Guard("· starting pubpublica service..."):
+        if not systemd.start(c, "pubpublica", sudo=True):
+            raise GuardWarning("failed to start the pubpublica servce")
 
     # TODO: only restart services whoose config has changed
     restart_service(c, "redis")
