@@ -166,10 +166,11 @@ def transfer_project(c, context):
 
 def unpack_project(c, context):
     with Guard("· unpacking..."):
-        app_path = context.get("APP_PATH")
+        deploy_path = context.get("DEPLOY_PATH")
         artifact = context.get("ARTIFACT_FILE")
-        artifact_path = os.path.join(app_path, artifact)
-        cmd = f"cd {app_path} && tar -xzf {artifact}"
+        artifact_path = os.path.join(deploy_path, artifact)
+
+        cmd = f"cd {deploy_path} && tar -xzf {artifact}"
         unpack = c.run(cmd, hide=True, warn=True)
 
         if not unpack.ok:
