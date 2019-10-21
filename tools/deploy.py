@@ -287,17 +287,28 @@ def setup_pubpublica_access(c, context):
 
 def setup_pubpublica_virtualenv(c, context):
     # TODO: create venv
-    # with Guard("· creating virtual environment..."):
+    deploy_path = context.get("DEPLOY_PATH")
+    if not deploy_path:
+        raise Exception("unable to locate deployed app")
+
+    with Guard("· creating virtual environment..."):
+        cd_dir = f"cd {deploy_path}"
+        create_venv = "python3 -m venv venv"
+        cmd = " && ".join([cd_dir, create_venv])
+
+        ret = c.run(cmd, hide=True, warn=True)
+        if not ret.ok:
+            raise Exception(f"failed creating virtual environment: {ret}")
 
     with Guard("· updating virtual environment..."):
-        cd_dir = "cd pubpublica/"
+        cd_dir = f"cd {deploy_path}"
         activate_venv = ". venv/bin/activate"
         pip_install = "pip install -r requirements.txt"
         cmd = " && ".join([cd_dir, activate_venv, pip_install])
 
         ret = c.run(cmd, hide=True, warn=True)
         if not ret.ok:
-            raise GuardWarning(f"failed to update the virtual environment: {ret}")
+            raise Exception(f"failed to update the virtual environment: {ret}")
 
 
 def setup_pubpublica(c, context):
