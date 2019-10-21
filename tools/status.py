@@ -3,20 +3,60 @@ import sys
 import json
 import getpass
 
+import click
 from paramiko.config import SSHConfig
 from fabric import Config, Connection
+from fabrikant import fs, system, access
+from fabrikant.apps import git, systemd, ufw
+
 from termcolor import colored
 
 import log
 import util
 from util import Guard
+from config import config
+
+
+def green(s):
+    return colored(s, "green", attrs=["bold"])
+
+
+def yellow(s):
+    return colored(s, "yellow", attrs=["bold"])
+
+
+def red(s):
+    return colored(s, "red", attrs=["bold"])
+
+
+def build_context(c):
+    ctx = {}
+    ctx.update(config.get("DEPLOY"))
+    ctx.pop("INCLUDES", None)
+    ctx.pop("SOCKET_PATH", None)
+
+    return ctx
+
+
+def gather_info(c, ctx):
+    app_path = ctx.get("APP_PATH")
+    deployed_id_file = ctx.get("DEPLOYED_ID_FILE")
+
+    remote_id_file = os.path.join(app_path, deployed_id_file)
+    deployed_id = fs.read_file(c, remote_id_file)
+
+    print(f"deployed id: {yellow(deployed_id)}")
+    ctx.update({"DEPLOYED_ID": deployed_id})
+
+    deployed_path = os.path.join(app_path, deployed_id)
+    ctx.update({"DEPLOYED_PATH": deployed_path})
 
 
 def color_by_predicate(pred, true, false):
     if pred:
-        return colored(true, "green")
+        return green(true)
     else:
-        return colored(false, "red")
+        return red(false)
 
 
 def color_by_range(val, s, low=0.25, mid=0.50, high=0.75):
@@ -24,32 +64,21 @@ def color_by_range(val, s, low=0.25, mid=0.50, high=0.75):
     if f < 0.25:
         return s
     elif f < 0.50:
-        return colored(s, "green")
+        return green(s)
     elif f < 0.75:
-        return colored(s, "yellow")
+        return yellow(s)
     else:
-        return colored(s, "red")
-
-
-def is_service_active(c, service):
-    status = c.run(f"systemctl is-active {service}")
-    return status.exited == 0 and status.stdout.strip() == "active"
+        return red(s)
 
 
 def service_status(c, service):
-    activity = ""
-
-    active = is_service_active(c, service)
-    activity = color_by_predicate(active, "active", "inactive")
+    activity = green("active") if systemd.is_active(c, service) else red("inactive")
     return f"{service}: {activity}"
 
 
 def ufw_status(c):
-    ufw_service = is_service_active(c, "ufw")
-    ufw_enabled = c.sudo("sudo ufw status | grep -qw active").exited == 0
-
-    ufw_on = color_by_predicate(ufw_service, "active", "inactive")
-    ufw_fw = color_by_predicate(ufw_enabled, "enabled", "disabled")
+    ufw_on = green("active") if systemd.is_active(c, "ufw") else red("inactive")
+    ufw_fw = green("enabled") if ufw.enabled(c, sudo=True) else red("disabled")
 
     return f"{ufw_on} + {ufw_fw}"
 
@@ -72,42 +101,16 @@ def memory_load(c):
     return color_by_range(float(free / total), f"{free}mb / {total}mb ({pct}%)")
 
 
-def pubpublica_version(c):
-    date = c.run("cd pubpublica && git log --format='%ai' -n 1").stdout.strip()
-    commit = c.run("cd pubpublica && git log --format='%H' -n 1").stdout.strip()[:7]
-    msg = c.run("cd pubpublica && git log --format='%B' -n 1").stdout.strip()
-    tags = c.run("cd pubpublica && git tag -l --points-at HEAD").stdout.strip()
-    tags = f"({tags}) " if tags else ""
-    return f'[{date}] {colored(commit, "yellow")} {tags}- "{msg}"'
+@click.command()
+@click.argument("host")
+def entry(host):
 
-
-def is_online(c, host):
-    config = SSHConfig()
-    with open("/home/jens/.ssh/config", "r") as f:
-        config.parse(f)
-
-    host_map = config.lookup(host)
-
-    if not host_map:
-        log.warning(f"could not find {host} in ssh config")
-        return False
-
-    ip = host_map.get("hostname")
-    ping = c.local(f"ping -c 1 {ip}")
-
-    is_online = ping.exited == 0
-
-    if is_online:
-        print(f"{host}: " + colored("online", "green"))
-    else:
-        print(f"{host}: " + colored("offline", "red"))
-
-    return is_online
-
-
-def main(host):
     try:
         c = util.connect(host, True)
+
+        ctx = build_context(c)
+
+        gather_info(c, ctx)
 
         print("----------")
         print(c.run("uname -a").stdout.strip())
@@ -121,13 +124,11 @@ def main(host):
 
         print("----------")
         print(service_status(c, "nginx"))
+        print(service_status(c, "redis"))
         print(service_status(c, "pubpublica"))
         print("----------")
         print("ufw: " + ufw_status(c))
         print(service_status(c, "fail2ban"))
-        print("----------")
-        ver = pubpublica_version(c)
-        print(f"version: {ver}")
     except KeyboardInterrupt:
         pass
     except Exception as err:
@@ -135,10 +136,4 @@ def main(host):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("usage: status.py <host>")
-        sys.exit(1)
-
-    host = sys.argv[1]
-
-    main(host)
+    entry()
