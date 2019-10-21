@@ -61,6 +61,19 @@ def check_local_git_repo(c, context):
             raise GuardWarning("repository is dirty")
 
 
+def check_deployment(c, context):
+    with Guard("· checking deployment..."):
+        app_path = context.get("APP_PATH")
+        id_file = context.get("DEPLOYED_ID_FILE")
+        deployment_file = os.path.join(app_path, id_file)
+        id = fs.read_file(c, deployment_file)
+
+        if not id:
+            raise GuardWarning("unable to find deployed id")
+
+        context.update({"DEPLOYED_ARTIFACT_ID": id})
+
+
 def check_versions(c, context):
     with Guard("· checking versions..."):
         app_path = context.get("APP_PATH")
@@ -332,6 +345,7 @@ def pre_deploy(c, local, context):
     print("PRE DEPLOY")
     context.update({"DEPLOY_START_TIME": util.timestamp()})
     check_local_git_repo(local, context)
+    check_deployment(c, context)
     check_versions(c, context)
     check_dependencies(c, context)
 
