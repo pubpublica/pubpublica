@@ -247,7 +247,7 @@ def setup_redis(c, context):
         config_contents = json.dumps(rendered_config, indent=4)
         remote_config_file_path = os.path.join(deploy_path, config_file)
         tmpfile = remote_config_file_path + ".new"
-        fs.overwrite_file(c, config_contents, tmpfile, sudo=True)
+        fs.write_file(c, config_contents, tmpfile, overwrite=True, sudo=True)
         fs.move(c, tmpfile, remote_config_file_path, sudo=True)
 
     with Guard("· setting permissions..."):
@@ -363,7 +363,7 @@ def setup_pubpublica(c, context):
     with Guard("· writing config files..."):
         config_string = json.dumps(rendered_config, indent=4)
         tmpfile = remote_config_file_path + ".new"
-        fs.overwrite_file(c, config_string, tmpfile, sudo=True)
+        fs.write_file(c, config_string, tmpfile, overwrite=True, sudo=True)
         fs.move(c, tmpfile, remote_config_file_path, sudo=True)
 
     setup_pubpublica_access(c, ctx)
@@ -376,7 +376,7 @@ def setup_pubpublica(c, context):
     version_file = context.get("DEPLOYED_ID_FILE")
     new_version = context.get("ARTIFACT_ID")
     version_file_path = os.path.join(app_path, version_file)
-    if not fs.overwrite_file(c, new_version, version_file_path, sudo=True):
+    if not fs.write_file(c, new_version, version_file_path, overwrite=True, sudo=True):
         raise Exception("unable to write new deployment version to {version_file}")
 
 
