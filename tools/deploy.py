@@ -142,6 +142,9 @@ def pack_project(c, context):
 
         context.update({"ARTIFACT_MD5": md5.hexdigest()})
 
+        deploy_path = os.path.join(app_path, artifact_name)
+        context.update({"DEPLOY_PATH": deploy_path})
+
 
 def transfer_project(c, context):
     with Guard("· transferring..."):
