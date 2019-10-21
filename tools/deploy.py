@@ -22,7 +22,8 @@ import log
 import util
 from util import Guard, GuardWarning
 
-pwstore = PasswordStore()
+# TODO: replace with libpass
+PASS = PasswordStore()
 
 
 def build_context(c):
@@ -168,7 +169,7 @@ def setup_flask(c, context):
 
         path = cfg.get("FLASK_SECRET_KEY_PATH")
         if path:
-            pw = pwstore.get_decrypted_password(path).strip()
+            pw = PASS.get_decrypted_password(path).strip()
             cfg.update({"FLASK_SECRET_KEY": pw})
             cfg.pop("FLASK_SECRET_KEY_PATH", None)
 
@@ -204,7 +205,7 @@ def setup_redis(c, context):
     with Guard("· building config files..."):
         password_path = cfg.get("REDIS_PASSWORD_PATH")
         if password_path:
-            pw = pwstore.get_decrypted_password(password_path).strip()
+            pw = PASS.get_decrypted_password(password_path).strip()
             cfg.update({"REDIS_PASSWORD": pw})
             cfg.pop("REDIS_PASSWORD_PATH", None)
 
