@@ -1,4 +1,5 @@
 fabric==2.5.0
 pypass==0.2.1
 packaging==19.2
+Click==7.0
 git+https://github.com/jensecj/fabrikant.git
