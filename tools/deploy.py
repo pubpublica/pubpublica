@@ -399,10 +399,11 @@ def deploy(c, context):
     transfer_project(c, context)
     unpack_project(c, context)
 
-    setup_pubpublica(c, context)
-    setup_flask(c, context)
     setup_redis(c, context)
     setup_nginx(c, context)
+
+    setup_flask(c, context)
+    setup_pubpublica(c, context)
 
 
 def post_deploy(c, context):
