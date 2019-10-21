@@ -214,15 +214,13 @@ def setup_redis(c, context):
     if not os.path.isdir(local_config_path):
         raise Exception(f"local config path {local_config_path} does not exist")
 
-    app_path = context.get("APP_PATH")
-    if not app_path:
+    deploy_path = context.get("DEPLOY_PATH")
+    if not deploy_path:
         raise Exception("dont know where the app is located")
 
     config_file = cfg.get("REDIS_CONFIG_FILE")
     if not config_file:
         raise Exception("dont know where the redis config file is located")
-
-    config_file_path = os.path.join(app_path, config_file)
 
     with Guard("· building config files..."):
         password_path = cfg.get("REDIS_PASSWORD_PATH")
@@ -235,21 +233,23 @@ def setup_redis(c, context):
         rendered_config = util.template(redis_template, cfg)
 
     with Guard("· writing config files..."):
-        config_string = json.dumps(rendered_config, indent=4)
-        tmpfile = config_file_path + ".new"
-        fs.overwrite_file(c, config_string, tmpfile, sudo=True)
-        fs.move(c, tmpfile, config_file_path, sudo=True)
+        # TODO: extract this 'dump json to string, create remote tmp file, write contents, overwrite remote file' flow
+        config_contents = json.dumps(rendered_config, indent=4)
+        remote_config_file_path = os.path.join(deploy_path, config_file)
+        tmpfile = remote_config_file_path + ".new"
+        fs.overwrite_file(c, config_contents, tmpfile, sudo=True)
+        fs.move(c, tmpfile, remote_config_file_path, sudo=True)
 
     with Guard("· setting permissions..."):
         user = context.get("USER")
         if user:
-            if not access.change_owner(c, config_file_path, user, sudo=True):
+            if not access.change_owner(c, remote_config_file_path, user, sudo=True):
                 raise Exception(f"failed to own {config_file}")
 
         group = context.get("GROUP")
         if group:
-            if not access.change_group(c, config_file_path, group, sudo=True):
-                raise Exception(f"failed to change group of {config_file} to")
+            if not access.change_group(c, remote_config_file_path, group, sudo=True):
+                raise Exception(f"failed to change group of {config_file} to {group}")
 
 
 def setup_nginx(c, context):
