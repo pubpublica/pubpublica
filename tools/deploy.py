@@ -188,8 +188,8 @@ def unpack_project(c, context):
 
 def restart_service(c, service):
     with Guard(f"· restarting {service} service..."):
-        # systemd.restart(c, service, sudo=True)
-        pass
+        if not systemd.restart(c, service, sudo=True):
+            raise GuardWarning(f"Failed to restart the {service} service")
 
 
 def setup_flask(c, context):
