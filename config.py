@@ -21,6 +21,7 @@ config = {
             "publications/",
             "pubpublica/",
         ],
+        "DEPLOYED_ID_FILE": ".deployed",
     },
     "PUBPUBLICA": {
         "PUBPUBLICA_CONFIG_FILE": ".pubpublica",
