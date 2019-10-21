@@ -196,9 +196,23 @@ def setup_flask(c, context):
     # TODO: merge with setup_pubpublica?
     print("setting up flask")
 
-    with Guard("· building config files..."):
-        cfg = config.get("FLASK") or {}
+    cfg = config.get("FLASK") or {}
+    if not cfg:
+        log.warning("unable to locate flask config")
 
+    local_config_path = context.get("LOCAL_CONFIG_PATH")
+    if not os.path.isdir(local_config_path):
+        raise Exception(f"local config path {local_config_path} does not exist")
+
+    deploy_path = context.get("DEPLOY_PATH")
+    if not deploy_path:
+        raise Exception("dont know where the app is located")
+
+    config_file = cfg.get("FLASK_CONFIG_FILE")
+    if not config_file:
+        raise Exception("dont know where the flask config file is located")
+
+    with Guard("· building config files..."):
         path = cfg.get("FLASK_SECRET_KEY_PATH")
         if path:
             pw = PASS.get_decrypted_password(path).strip()
@@ -206,11 +220,16 @@ def setup_flask(c, context):
             cfg.pop("FLASK_SECRET_KEY_PATH", None)
 
         config_path = context.get("LOCAL_CONFIG_PATH")
-        flask_template = os.path.join(config_path, ".flask")
-        flask_config = util.template(flask_template, cfg)
+        config_file = cfg.get("FLASK_CONFIG_FILE")
+        flask_template = os.path.join(config_path, config_file)
+        rendered_config = util.template(flask_template, cfg)
 
     with Guard("· writing config files..."):
-        pass
+        config_contents = json.dumps(rendered_config, indent=4)
+        remote_config_file_path = os.path.join(deploy_path, config_file)
+        tmpfile = remote_config_file_path + ".new"
+        fs.write_file(c, config_contents, tmpfile, overwrite=True, sudo=True)
+        fs.move(c, tmpfile, remote_config_file_path, sudo=True)
 
 
 def setup_redis(c, context):
