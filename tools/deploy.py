@@ -388,10 +388,6 @@ def pre_deploy(c, local, context):
     check_versions(c, context)
     check_dependencies(c, context)
 
-    with Guard("· stopping pubpublica service..."):
-        if not systemd.stop(c, "pubpublica", sudo=True):
-            raise GuardWarning("failed to stop the pubpublica servce")
-
 
 def deploy(c, context):
     print("DEPLOY")
@@ -409,13 +405,10 @@ def deploy(c, context):
 def post_deploy(c, context):
     print("POST DEPLOY")
 
-    with Guard("· starting pubpublica service..."):
-        if not systemd.start(c, "pubpublica", sudo=True):
-            raise GuardWarning("failed to start the pubpublica servce")
-
     # TODO: only restart services whoose config has changed
     restart_service(c, "redis")
     restart_service(c, "nginx")
+    restart_service(c, "pubpublica")
 
     context.update({"DEPLOY_END_TIME": util.timestamp()})
 
