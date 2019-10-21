@@ -176,13 +176,13 @@ def unpack_project(c, context):
         artifact = context.get("ARTIFACT_FILE")
         artifact_path = os.path.join(deploy_path, artifact)
 
-        cmd = f"cd {deploy_path} && tar -xzf {artifact}"
-        unpack = c.run(cmd, hide=True, warn=True)
+        cmd = f"tar -C {deploy_path} -xzf {artifact_path}"
+        unpack = c.sudo(cmd, hide=True, warn=True)
 
         if not unpack.ok:
             raise Exception(f"failed to unpack project: {unpack.stderr}")
 
-        if not fs.remove(c, artifact_path):
+        if not fs.remove(c, artifact_path, sudo=True):
             raise GuardWarning("failed to remove artifact after unpacking")
 
 
