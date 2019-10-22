@@ -76,8 +76,8 @@ def check_deployment(c, context):
 
 def check_versions(c, context):
     with Guard("· checking versions..."):
-        app_path = context.get("APP_PATH")
-        remote_ver_file = os.path.join(app_path, "__version__.py")
+        production_path = context.get("PRODUCTION_PATH")
+        remote_ver_file = os.path.join(production_path, "__version__.py")
         v_remote = fs.read_file(c, remote_ver_file)
 
         if not v_remote:
