@@ -116,6 +116,12 @@ def memory_load(c):
     return color_by_range(float(free / total), f"{free}mb / {total}mb ({pct}%)")
 
 
+def count_compute_units(c):
+    processes = c.run("ps -e | wc -l").stdout.strip()
+    threads = c.run("ps -eT | wc -l").stdout.strip()
+    return processes, threads
+
+
 @click.command()
 @click.argument("host")
 def entry(host):
@@ -138,6 +144,9 @@ def entry(host):
         mem_load = memory_load(c)
         print(f"memory load: \t{mem_load}")
 
+        processes, threads = count_compute_units(c)
+        print(f"processes: \t{processes}")
+        print(f"threads: \t{threads}")
 
         print("----------")
         print(service_status(c, "nginx"))
