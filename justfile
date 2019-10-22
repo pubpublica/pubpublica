@@ -17,6 +17,10 @@ check:
 	. venv/bin/activate
 	PYTHONPATH={{PYTHONPATH}} {{PYTHON}} tools/check_links.py "publications/"
 
+validate:
+	. venv/bin/activate
+	PYTHONPATH={{PYTHONPATH}} {{PYTHON}} tools/validate_pubs.py "publications/"
+
 status host +FLAGS='':
 	. venv/bin/activate
 	PYTHONPATH={{PYTHONPATH}} {{PYTHON}} tools/status.py {{host}} {{FLAGS}}
