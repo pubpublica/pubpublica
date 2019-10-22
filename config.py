@@ -5,6 +5,8 @@ config = {
             "python3",
             "python3-pip",
             "python3-venv",
+            "pkg-config",
+            "libsystemd-dev",
             "redis-server",
             "nginx",
         ]
