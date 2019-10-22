@@ -378,15 +378,12 @@ def setup_pubpublica(c, context):
         fs.move(c, tmpfile, remote_config_file_path, sudo=True)
 
     setup_pubpublica_virtualenv(c, ctx)
-
-    with Guard("· creating links..."):
-        pass
-
     setup_pubpublica_access(c, ctx)
 
-    production_path = context.get("PRODUCTION_PATH")
-    if not fs.create_symlink(c, deploy_path, production_path, force=True, sudo=True):
-        raise Exception(f"failed to link {production_path} to newly deployed app")
+    with Guard("· linking production to new deployment..."):
+        production_path = context.get("PRODUCTION_PATH")
+        if not fs.create_symlink(c, deploy_path, production_path, force=True, sudo=True):
+            raise Exception(f"failed to link {production_path} to newly deployed app")
 
     version_file = context.get("DEPLOYED_ID_FILE")
     new_version = context.get("ARTIFACT_ID")
