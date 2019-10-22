@@ -17,21 +17,26 @@ from util import Guard
 from config import config
 
 
+def grey(s):
+    return colored(s, "white")
+
+
 def green(s):
-    return colored(s, "green", attrs=["bold"])
+    return colored(s, "green")
 
 
 def yellow(s):
-    return colored(s, "yellow", attrs=["bold"])
+    return colored(s, "yellow")
 
 
 def red(s):
-    return colored(s, "red", attrs=["bold"])
+    return colored(s, "red")
 
 
 def build_context(c):
     ctx = {}
     ctx.update(config.get("DEPLOY"))
+    ctx.update(config.get("PUBPUBLICA"))
     ctx.pop("INCLUDES", None)
     ctx.pop("SOCKET_PATH", None)
 
@@ -39,17 +44,27 @@ def build_context(c):
 
 
 def gather_info(c, ctx):
-    app_path = ctx.get("APP_PATH")
-    deployed_id_file = ctx.get("DEPLOYED_ID_FILE")
+    deployed_path = ctx.get("PRODUCTION_PATH")
+    pubpublica_config_file = ctx.get("PUBPUBLICA_CONFIG_FILE")
+    pubpublica_config_file_path = os.path.join(deployed_path, pubpublica_config_file)
+    pubpublica_config = fs.read_file(c, pubpublica_config_file_path, sudo=True)
+    pubpublica = json.loads(pubpublica_config)
 
-    remote_id_file = os.path.join(app_path, deployed_id_file)
-    deployed_id = fs.read_file(c, remote_id_file)
-
-    print(f"deployed id: {yellow(deployed_id)}")
+    deployed_id = pubpublica.get("ARTIFACT_ID")
+    print(f"ID:\t {grey(deployed_id)}")
     ctx.update({"DEPLOYED_ID": deployed_id})
 
-    deployed_path = os.path.join(app_path, deployed_id)
-    ctx.update({"DEPLOYED_PATH": deployed_path})
+    deployed_md5 = pubpublica.get("ARTIFACT_MD5")
+    print(f"MD5:\t {grey(deployed_md5)}")
+    ctx.update({"DEPLOYED_MD5": deployed_md5})
+
+    deployed_timestamp = pubpublica.get("TIMESTAMP").replace("T", " ")
+    print(f"date:\t {grey(deployed_timestamp)}")
+    ctx.update({"DEPLOYED_TIMESTAMP": deployed_timestamp})
+
+    deployed_commit = pubpublica.get("COMMIT_HASH")
+    print(f"commit:\t {grey(deployed_commit)}")
+    ctx.update({"DEPLOYED_COMMIT": deployed_commit})
 
 
 def color_by_predicate(pred, true, false):
@@ -62,9 +77,9 @@ def color_by_predicate(pred, true, false):
 def color_by_range(val, s, low=0.25, mid=0.50, high=0.75):
     f = float(val)
     if f < 0.25:
-        return s
-    elif f < 0.50:
         return green(s)
+    elif f < 0.50:
+        return yellow(s)
     elif f < 0.75:
         return yellow(s)
     else:
@@ -108,8 +123,9 @@ def entry(host):
     try:
         c = util.connect(host, True)
 
-        ctx = build_context(c)
+        print("----------")
 
+        ctx = build_context(c)
         gather_info(c, ctx)
 
         print("----------")
@@ -117,10 +133,11 @@ def entry(host):
         print("----------")
 
         load_avg = avg_cpu_load(c)
-        print(f"load average: {load_avg}")
+        print(f"load average: \t{load_avg}")
 
         mem_load = memory_load(c)
-        print(f"memory load: {mem_load}")
+        print(f"memory load: \t{mem_load}")
+
 
         print("----------")
         print(service_status(c, "nginx"))
