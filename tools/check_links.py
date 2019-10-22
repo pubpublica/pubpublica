@@ -1,6 +1,7 @@
 import os
 import sys
 
+import click
 import requests
 
 import log
@@ -15,18 +16,16 @@ def check_link(url):
         return None
 
 
-def check(path):
+@click.command()
+@click.argument("path")
+def entry(path):
     cwd = os.getcwd()
     dir = os.path.join(cwd, path)
 
-    files = []
-    for _, _, fs in os.walk(dir):
-        for f in fs:
-            files.append(os.path.join(dir, f))
-
     items = {}
-    for file in files:
-        item = util.template(file)
+    for file in os.listdir(dir):
+        path = os.path.join(dir, file)
+        item = util.template(path)
 
         links = []
         for l in ["sitelink", "directlink", "summarylink"]:
@@ -55,9 +54,4 @@ def check(path):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("usage: python check_links.py /path/to/dir")
-        sys.exit(1)
-
-    path = sys.argv[1]
-    check(path)
+    entry()
