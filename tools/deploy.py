@@ -26,6 +26,16 @@ from util import Guard, GuardWarning
 # TODO: replace with libpass
 PASS = PasswordStore()
 
+# TODO: async workflow:
+# (async paramiko commands may not be a good idea?)
+# build context
+# ASYNC checks
+# pack, upload, unpack
+# ASYNC config rendering
+# chown + chgrp + chmod
+# symlink
+# restart services
+
 
 def build_context(c):
     with Guard("· gathering build information..."):
@@ -194,6 +204,7 @@ def restart_service(c, service):
 
 def setup_flask(c, context):
     # TODO: merge with setup_pubpublica?
+    # TODO: find some other approach for rendering and saving config files enmasse
     print("setting up flask")
 
     cfg = config.get("FLASK") or {}
@@ -343,6 +354,7 @@ def setup_pubpublica_virtualenv(c, context):
 def setup_pubpublica(c, context):
     print("setting up pubpublica")
 
+    # TODO: this entire process should probably be done as USER
     cfg = config.get("PUBPUBLICA") or {}
     if not cfg:
         log.warning("unable to locate pubpublica config")

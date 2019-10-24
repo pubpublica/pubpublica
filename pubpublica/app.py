@@ -78,6 +78,8 @@ def rss():
     if path:
         pubs = util.get_publications(path)
 
+    # TODO: sort publications by latest
+
     pubs = util.rss_convert(pubs)
 
     ctx = {"PUBLICATIONS": pubs}
