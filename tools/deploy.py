@@ -25,7 +25,7 @@ from util import Guard, GuardWarning
 
 PASS = PasswordStore()
 
-# TODO: async workflow:
+# TODO: async workflow: (uvloop?)
 # (async paramiko commands may not be a good idea?)
 # build context
 # ASYNC checks

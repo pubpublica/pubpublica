@@ -5,7 +5,7 @@ import sys
 from setuptools import setup
 
 version = open("__version__.py", "r").read().strip()
-
+# TODO: break on version <3.8.0
 setup(
     name="pubpublica",
     version=version,
