@@ -7,7 +7,7 @@ import tarfile
 import hashlib
 from dataclasses import dataclass
 
-from pypass import PasswordStore
+from libpass import PasswordStore
 
 import click
 import invoke
@@ -23,7 +23,6 @@ import log
 import util
 from util import Guard, GuardWarning
 
-# TODO: replace with libpass
 PASS = PasswordStore()
 
 # TODO: async workflow:
@@ -424,6 +423,9 @@ def entry(host, dry_run):
         c = util.connect(host, sudo=True)
 
         context = build_context(local)
+
+        # TODO: only open if needed
+        PASS.unlock()
 
         if dry_run:
             print("DRY RUN")
