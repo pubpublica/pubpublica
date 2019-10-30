@@ -14,8 +14,9 @@ config = {
     "DEPLOY": {
         "USER": "pubpublica",
         "GROUP": "pubpublica",
-        "APP_PATH": "/srv/pubpublica/",
+        "APP_PATH": "/srv/pubpublica",
         "PRODUCTION_PATH": "/var/www/pubpublica",
+        "SOCKET_PATH": "/var/run/pubpublica/pubpublica.sock",
         "INCLUDES": [
             "__version__.py",
             "requirements.txt",
