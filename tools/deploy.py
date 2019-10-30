@@ -141,13 +141,7 @@ def pack_project(c, context):
         md5 = hashlib.md5()
         block_size = 65536
         with open(artifact_path, "rb") as f:
-            # while data := f.read(block_size): md5.update(data)
-            while True:
-                data = f.read(block_size)
-
-                if not data:
-                    break
-
+            while data := f.read(block_size):
                 md5.update(data)
 
         context.update({"ARTIFACT_MD5": md5.hexdigest()})
@@ -207,26 +201,22 @@ def setup_flask(c, context):
     # TODO: find some other approach for rendering and saving config files enmasse
     print("setting up flask")
 
-    cfg = config.get("FLASK") or {}
-    if not cfg:
+    if not (cfg := config.get("FLASK") or {}):
         log.warning("unable to locate flask config")
 
     local_config_path = context.get("LOCAL_CONFIG_PATH")
     if not os.path.isdir(local_config_path):
         raise Exception(f"local config path {local_config_path} does not exist")
 
-    deploy_path = context.get("DEPLOY_PATH")
-    if not deploy_path:
+    if not (deploy_path := context.get("DEPLOY_PATH")):
         raise Exception("dont know where the app is located")
 
-    config_file = cfg.get("FLASK_CONFIG_FILE")
-    if not config_file:
+    if not (config_file := cfg.get("FLASK_CONFIG_FILE")):
         raise Exception("dont know where the flask config file is located")
 
     with Guard("· building config files..."):
-        path = cfg.get("FLASK_SECRET_KEY_PATH")
-        if path:
-            pw = PASS.get_decrypted_password(path).strip()
+        if path := cfg.get("FLASK_SECRET_KEY_PATH"):
+            pw = PASS.get(path)
             cfg.update({"FLASK_SECRET_KEY": pw})
             cfg.pop("FLASK_SECRET_KEY_PATH", None)
 
@@ -246,26 +236,22 @@ def setup_flask(c, context):
 def setup_redis(c, context):
     print("setting up redis")
 
-    cfg = config.get("REDIS") or {}
-    if not cfg:
+    if not (cfg := config.get("REDIS") or {}):
         log.warning("unable to locate redis config")
 
     local_config_path = context.get("LOCAL_CONFIG_PATH")
     if not os.path.isdir(local_config_path):
         raise Exception(f"local config path {local_config_path} does not exist")
 
-    deploy_path = context.get("DEPLOY_PATH")
-    if not deploy_path:
+    if not (deploy_path := context.get("DEPLOY_PATH")):
         raise Exception("dont know where the app is located")
 
-    config_file = cfg.get("REDIS_CONFIG_FILE")
-    if not config_file:
+    if not (config_file := cfg.get("REDIS_CONFIG_FILE")):
         raise Exception("dont know where the redis config file is located")
 
     with Guard("· building config files..."):
-        password_path = cfg.get("REDIS_PASSWORD_PATH")
-        if password_path:
-            pw = PASS.get_decrypted_password(password_path).strip()
+        if password_path := cfg.get("REDIS_PASSWORD_PATH"):
+            pw = PASS.get(password_path)
             cfg.update({"REDIS_PASSWORD": pw})
             cfg.pop("REDIS_PASSWORD_PATH", None)
 
@@ -297,8 +283,7 @@ def setup_nginx(c, context):
 
 
 def setup_pubpublica_access(c, context):
-    deploy_path = context.get("DEPLOY_PATH")
-    if not deploy_path:
+    if not (deploy_path := context.get("DEPLOY_PATH")):
         raise Exception("unable to locate deployed app")
 
     user = context.get("USER")
@@ -327,14 +312,12 @@ def setup_pubpublica_access(c, context):
 
 
 def setup_pubpublica_virtualenv(c, context):
-    # TODO: create venv
-    deploy_path = context.get("DEPLOY_PATH")
-    if not deploy_path:
+    if not (deploy_path := context.get("DEPLOY_PATH")):
         raise Exception("unable to locate deployed app")
 
     with Guard("· creating virtual environment..."):
         venv_dir = os.path.join(deploy_path, "venv")
-        create_venv = f"python3 -m venv {venv_dir}"
+        create_venv = f"python3.8 -m venv {venv_dir}"
 
         ret = c.sudo(create_venv, hide=True, warn=True)
         if not ret.ok:
@@ -342,7 +325,7 @@ def setup_pubpublica_virtualenv(c, context):
 
     with Guard("· updating virtual environment..."):
         venv_dir = os.path.join(deploy_path, "venv")
-        pip_file = os.path.join(venv_dir, "bin", "pip")
+        pip_file = os.path.join(venv_dir, "bin", "pip3.8")
         requirements_file = os.path.join(deploy_path, "requirements.txt")
         pip_install = f"{pip_file} install -r {requirements_file}"
 
@@ -354,9 +337,7 @@ def setup_pubpublica_virtualenv(c, context):
 def setup_pubpublica(c, context):
     print("setting up pubpublica")
 
-    # TODO: this entire process should probably be done as USER
-    cfg = config.get("PUBPUBLICA") or {}
-    if not cfg:
+    if not (cfg := config.get("PUBPUBLICA") or {}):
         log.warning("unable to locate pubpublica config")
 
     ctx = {**context, **cfg}
@@ -365,16 +346,13 @@ def setup_pubpublica(c, context):
     if not os.path.isdir(local_config_path):
         raise Exception(f"local config path {local_config_path} does not exist")
 
-    app_path = context.get("APP_PATH")
-    if not app_path:
+    if not (app_path := context.get("APP_PATH")):
         raise Exception("dont know where the app is located")
 
-    deploy_path = context.get("DEPLOY_PATH")
-    if not deploy_path:
+    if not (deploy_path := context.get("DEPLOY_PATH")):
         raise Exception("unable to locate deployed app")
 
-    config_file = cfg.get("PUBPUBLICA_CONFIG_FILE")
-    if not config_file:
+    if not (config_file := cfg.get("PUBPUBLICA_CONFIG_FILE")):
         raise Exception("dont know where the config_file is located")
 
     remote_config_file_path = os.path.join(deploy_path, config_file)

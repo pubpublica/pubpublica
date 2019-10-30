@@ -37,17 +37,14 @@ root_log.addHandler(journald_handler)
 
 app = Flask(__name__)
 
-flask_config = util.load_json(".flask")
-if flask_config:
+if flask_config := util.load_json(".flask"):
     app.logger.info("loaded flask config from .flask")
     app.config.update(flask_config)
 
-pubpublica_config = util.load_json(".pubpublica")
-if pubpublica_config:
+if pubpublica_config := util.load_json(".pubpublica"):
     app.logger.info("loaded pubpublica config from .pubpublica")
 
-cache_config = util.load_json(".redis")
-if cache_config:
+if cache_config := util.load_json(".redis"):
     app.logger.info("loaded cache config from .redis")
 
 cache = Cache(config=cache_config)
@@ -60,8 +57,7 @@ def index():
     app.logger.info("Generating INDEX for cache.")
 
     pubs = []
-    path = pubpublica_config.get("PUBLICATIONS_PATH")
-    if path:
+    if path := pubpublica_config.get("PUBLICATIONS_PATH"):
         pubs = util.get_publications(path)
 
     ctx = {"PUBLICATIONS": pubs}
@@ -74,8 +70,7 @@ def index():
 @cache.cached(timeout=500)
 def rss():
     pubs = []
-    path = pubpublica_config.get("PUBLICATIONS_PATH")
-    if path:
+    if path := pubpublica_config.get("PUBLICATIONS_PATH"):
         pubs = util.get_publications(path)
 
     # TODO: sort publications by latest
