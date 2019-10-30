@@ -1,7 +1,6 @@
 bind = "unix:/var/run/pubpublica/pubpublica.sock"
-# bind = "127.0.0.1:5000"
+#bind = "127.0.0.1:5000"
 
-# worker_class= "aiohttp.worker.GunicornWebWorker"
 workers = 4                     # max number of workers
 max_requests = 1000             # max number of requests before a worker is restarted
 max_requests_jitter = 100       # jitter to add to `max_requests', so they dont all restart at the same time

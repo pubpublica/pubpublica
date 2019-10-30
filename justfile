@@ -2,36 +2,16 @@ venv := "venv"
 PYTHONPATH := "."
 PYTHON := venv + "/bin/python"
 
-uwsgi:
-	uwsgi --ini uwsgi.ini
-
-gunicorn:
-	gunicorn 'wsgi:application' --config gunicorn.py
+test:
+	. venv/bin/activate
+	PYTHONPATH={{PYTHONPATH}} pytest
 
 debug:
 	. venv/bin/activate
 	PYTHONPATH={{PYTHONPATH}} FLASK_ENV=development FLASK_DEBUG=1 {{PYTHON}} wsgi.py
 
-test:
-	. venv/bin/activate
-	PYTHONPATH={{PYTHONPATH}} pytest
+gunicorn:
+	gunicorn 'wsgi:application' --config gunicorn.py
 
-check:
-	. venv/bin/activate
-	PYTHONPATH={{PYTHONPATH}} {{PYTHON}} tools/check_links.py "publications/"
-
-validate:
-	. venv/bin/activate
-	PYTHONPATH={{PYTHONPATH}} {{PYTHON}} tools/validate_pubs.py "publications/"
-
-status host +FLAGS='':
-	. venv/bin/activate
-	PYTHONPATH={{PYTHONPATH}} {{PYTHON}} tools/status.py {{host}} {{FLAGS}}
-
-provision host +FLAGS='':
-	. venv/bin/activate
-	PYTHONPATH={{PYTHONPATH}} {{PYTHON}} tools/provision.py {{host}} {{FLAGS}}
-
-deploy host +FLAGS='':
-	. venv/bin/activate
-	PYTHONPATH={{PYTHONPATH}} {{PYTHON}} tools/deploy.py {{host}} {{FLAGS}}
+uwsgi:
+	uwsgi --ini uwsgi.ini

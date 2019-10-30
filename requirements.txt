@@ -1,6 +1,0 @@
-wheel==0.33.6
-uWSGI==2.0.18
-redis==3.3.10
-Flask==1.1.1
-Flask-Caching==1.7.2
-systemd-python==234
