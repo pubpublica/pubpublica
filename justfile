@@ -2,8 +2,11 @@ venv := "venv"
 PYTHONPATH := "."
 PYTHON := venv + "/bin/python"
 
-serve:
+uwsgi:
 	uwsgi --ini uwsgi.ini
+
+gunicorn:
+	gunicorn 'wsgi:application' --config gunicorn.py
 
 debug:
 	. venv/bin/activate

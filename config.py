@@ -19,6 +19,7 @@ config = {
         "INCLUDES": [
             "__version__.py",
             "requirements.txt",
+            "gunicorn.py",
             "uwsgi.ini",
             "wsgi.py",
             "publications/",

@@ -1,12 +1,20 @@
 [Unit]
-Description=uWSGI instance to serve pubpublica
+Description=Process monitor and server for pubpublica
+Requires=pubpublica.socket
 After=network.target
 
 [Service]
+# User=pubpublica
+# Group=www-data
 RuntimeDirectory=pubpublica
-WorkingDirectory=/var/www/pubpublica
-Environment="PATH=/var/www/pubpublica/venv/bin"
-ExecStart=/var/www/pubpublica/venv/bin/uwsgi --ini /var/www/pubpublica/uwsgi.ini
+WorkingDirectory={{PRODUCTION_PATH}}
+Environment="PATH={{PRODUCTION_PATH}}/venv/bin"
+ExecStart={{PRODUCTION_PATH}}/venv/bin/gunicorn "pubpublica:application" -c {{PRODUCTION_PATH}}/gunicorn.py
+# ExecStart={{PRODUCTION_PATH}}/venv/bin/uwsgi --ini {{PRODUCTION_PATH}}/uwsgi.ini
+Restart=always
+Type=notify
+# hardening:
+PrivateTmp=true
 
 [Install]
 WantedBy=multi-user.target
